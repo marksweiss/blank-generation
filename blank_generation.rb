@@ -3,7 +3,6 @@
 require "rubygems"
 require "rsruby"
 require "date"
-require "blank_validation"
 require "util"
 
 # require 'ruby-debug' ; Debugger.start
@@ -14,22 +13,6 @@ require "util"
 
 NIL_FLD_MARKER = '7ab09e90-668e-11e1-b86c-0800200c9a66'
 
-#--
-# TODO - add examples with Dates to examples of syntax
-#
-# TODO - support out_proto providing structure for JSON
-#
-# TODO - handle paging etc. for large values of num_records. Rows are independent so this is easy
-# TODO - support arrays as data type for document DBs
-# TODO - default dictionary of ipsum, maybe also out of the box for state_id's etc
-#
-# TODO - README.md and publish and publicize
-#
-# TODO - support to generate mean, std_dev from sample input
-#
-# TODO - wrapper libraries in different languages for programmatic access
-#++
-
 class BlankGenerationException < Exception; end
 class BlankFormatterException < Exception; end
 
@@ -37,34 +20,10 @@ class BlankFormatterException < Exception; end
 # Copyright:: Copyright (c) 2012 Mark S. Weiss
 # License:: MIT 
 #
-# == Overview
-# Generates the number of records of test data specified using the supplied field definitions which specify how to
-# generate data for each field in the records. The user also specifies the output format for the generated data
-# and can optionally provide a prototype object to use as a template for generating output records, For example,
-# this might be a JSON object with nested objects and arrays, etc. that shows the class how to map the a flat dictionary
-# of fields and values to the fields in the prototype object.
 class BlankGenerator
   attr_accessor :exclude_nil_fields
   attr_reader :field_generators, :formatter
 
-  # <tt>exclude_nil_fields</tt>
-  # * Boolean
-  # * Flag indicating whether to include in each record fields that have a nil value for that record or to omit the field in that record. For example, relational data which has a regular table structure includes each field in every record with nil values. Document database records, sparse arrays, etc. omit fields from a record that have no value for that record.
-  # * Optional, Default value: false
-  # 1. :json output is sent to stdout
-  # 2. :csv output is sent to stdout
-  #
-  # <tt>out_format</tt>
-  # * Symbol
-  # * The format for output to be generated in. Supported formats and so possible values are :json or :csv.
-  # * Optional ,DezzzzzzZfault value: :json
-  # 1. :json output is sent to stdout
-  # 2. :csv output is sent to stdout
-  #
-  # <tt>out_proto</tt>
-  # * Hash
-  # * A prototype object to construct output records. If not provided, out_format defaults to JSON.  If provided then the keys in the field_defs will be matched to the keys in the proto and the value for each key set with the value in that row for that key.
-  # * Optional, Default value: nil
   def initialize(exclude_nil_fields=false, formatter=nil)
     @exclude_nil_fields = exclude_nil_fields
     @formatter = formatter || JsonFormatter.new    
@@ -91,27 +50,6 @@ class BlankGenerator
     @field_generators << field_generator
   end
 
-  # <tt>num_records</tt>
-  # * Fixnum
-  # * Number of records to generate.
-  # * Required.
-  #
-  # <tt>exclude_nil_fields</tt>
-  # * Boolean
-  # * Flag indicating whether to include in each record fields that have a nil value for that record or to omit the field in that record. For example, relational data which has a regular table structure includes each field in every record with nil values. Document database records, sparse arrays, etc. omit fields from a record that have no value for that record.
-  # * Overwrites value set in #initialize(), for this call to generate only, if passed here.
-  # * Optional, Default value: false
-  # 1. :json output is sent to stdout
-  # 2. :csv output is sent to stdout
-  #
-  # <tt>out_format</tt>
-  # * Symbol
-  # * The format for output to be generated in. Supported formats and so possible values are :json or :csv.
-  # * Overwrites value set in #initialize(), for this call to generate only, if passed here.
-  # * Optional, Default value: :json
-  # 1. :json output is sent to stdout
-  # 2. :csv output is sent to stdout
-  #
   def generate(num_records)    
     if num_records.nil? || num_records.class != Fixnum
       raise BlankGenerationException, "Invalid value for num_records #{num_records} passed as arg to #BlankGenerator::generate()."    
@@ -198,12 +136,6 @@ class FieldGenerator
   end
 end
 
-# TODO Document legal data types, including ISO 8601 Date support
-
-# These classes could almost be mixin Modules as they are barely worthwhile holders of state wrapping #generate()
-#  but the one key advantage of this approach is we enforce required and optional args in the ctor cleanly.
-# Also client can init and then reuse the object as desired, tweaking by changing one or more properties and then
-#  calling #generate() again to generate variations on a column of data. That should be useful.
 class NormalFieldGenerator < FieldGenerator
   attr_accessor :std_dev, :nil_ratio, :nil_value, :date_flag
   
@@ -552,13 +484,6 @@ class BlankFormatter
 end
 
 # TODO Support specific JSON lib options
-# TODO Support out_proto to handle nested target objects
-# TODO Validate out_proto is a Hash
-# <tt>out_proto</tt>
-# * Hash
-# * A prototype object to construct output records. If not provided, out_format defaults to JSON.  If provided then the keys in the field_defs will be matched to the keys in the proto and the value for each key set with the value in that row for that key.
-# * Overwrites value set in #initialize(), for this call to generate only, if passed here.
-# * Optional, Default value: nil
 class JsonFormatter < BlankFormatter
   require 'json'
   

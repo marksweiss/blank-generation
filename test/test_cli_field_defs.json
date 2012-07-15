@@ -1,1 +1,0 @@
-{"fields" : [{"name" : "customer_id", "dist_type" : "id_int"}, {"name" : "customer_name", "dist_type" : "value_set", "value_set" : ["Hank Williams"]}, {"name" : "order_total", "dist_type" : "normal", "example_value" : 1.0, "mean" : 20.05, "std_dev" : 5.42}]}

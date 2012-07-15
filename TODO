@@ -1,0 +1,16 @@
+# *** Package as gem, including support for RSRuby gem install
+#
+# TODO - add examples with Dates to examples of syntax
+#
+# TODO - support out_proto providing structure for JSON
+#
+# TODO - handle paging etc. for large values of num_records. Rows are independent so this is easy
+# TODO - support arrays as data type for document DBs
+# TODO - default dictionary of ipsum, maybe also out of the box for state_id's etc
+#
+# TODO - README.md and publish and publicize
+#
+# TODO - support to generate mean, std_dev from sample input
+#
+# TODO - wrapper libraries in different languages for programmatic access
+#++

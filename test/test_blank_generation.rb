@@ -4,10 +4,7 @@ require "rubygems"
 require "test/unit"
 require "json"
 require "uuidtools"
-require "mongo"
-require "open3"
 require "blank_generation"
-require "blank_validation"
 require "util"
 
 class BlankGenerator_Test < Test::Unit::TestCase  
