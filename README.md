@@ -2,7 +2,7 @@
 
 _Blank Generation_ aims to be a general purpose library for generating realistic and useful test data. The library has two key design goals. 
 
-First, it aims to provide the right set of primitives for generating data -- simple to use but flexible enough to be uses to create many different kinds of realistic distributions of data. Second, the library intends to have a simple, clear, pleasing API. If you come back to your data-generation scripts months later to add a new column and you can't quickly understand what you are looking at, you will abandon the library.
+First, it aims to provide the right set of primitives for generating data -- simple to use but flexible enough to be used to create many different kinds of realistic distributions of data. Second, the library intends to have a simple, clear, pleasing API. If you come back to your data-generation scripts months later to add a new column and you can't quickly understand what you are looking at, you will abandon the library.
 
 #### Using the Library
 
@@ -28,24 +28,24 @@ Each of these, in a realistic set of test data, would contain a different type o
 The code to create this test data and return it as JSON looks like this:
 
 ```ruby
-name = "CustId"
-id_gen = IdFieldGenerator.new(name)
-name = "Name"
+fldname = "CustId"
+id_gen = IdFieldGenerator.new(fldname)
+fldname = "Name"
 path = "./namesfile.txt"
-name_gen = DictionaryFieldGenerator.new(name, path)
-name = "State"
+name_gen = DictionaryFieldGenerator.new(fldname, path)
+fldname = "State"
 values = ["NY", "NJ", "PA", "DE"]
-state_gen = ValueSetFieldGenerator.new(name, values)
-name = "CreatedAt"
-date_type = FieldGenerator::DATE
+state_gen = ValueSetFieldGenerator.new(fldname, values)
+fldname = "CreatedAt"
+data_type = FieldGenerator::DATE
 min = "1997-07-16T19:20:30.45+01:00"
 max = "1997-07-16T19:20:30.45+01:00"
-created_at_gen = RandomFieldGenerator.new(name, data_type, min, max)
-name = "MaxPurchasePrice"
+created_at_gen = RandomFieldGenerator.new(fldname, data_type, min, max)
+fldname = "MaxPurchasePrice"
 data_type = FieldGenerator::FLOAT
 mean = 20.32
 std_dev_ = 8.63
-max_purchase_gen = NormalFieldGenerator.new(name, data_type, mean, std_dev)
+max_purchase_gen = NormalFieldGenerator.new(fldname, data_type, mean, std_dev)
 g = BlankGenerator.new
 g.add_field_generators(id_gen, name_gen, state_gen, created_at_gen, max_purchase_gen)
 num_records = 1000
