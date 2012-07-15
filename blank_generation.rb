@@ -139,7 +139,10 @@ end
 class NormalFieldGenerator < FieldGenerator
   attr_accessor :std_dev, :nil_ratio, :nil_value, :date_flag
   
-  def initialize(name, data_type, mean, std_dev, nil_ratio=nil, nil_value=nil)        
+  def initialize(*args) # name, data_type, mean, std_dev, nil_ratio=nil, nil_value=nil
+    # Handle args as argument list or options hash
+    name, data_type, mean, std_dev, nil_ratio, nil_value = load_init_args args
+    
     if data_type != INT && data_type != FLOAT && data_type != DATE
       raise BlankGenerationException, "NormalGenerator: illegal value for data_type, != INT, FLOAT, DATE: data_type #{data_type}"
     end
@@ -154,7 +157,7 @@ class NormalFieldGenerator < FieldGenerator
     @r = RSRuby.instance
     
     if not validate
-      raise BlankGenerationException, "NormalGenerator: Validation failed for arguments: name #{name}, data_type #{data_type}, mean #{mean}, std_dev #{std_dev}, nil_ratio #{nil_ratio}, nil_value #{nil_value}"
+      raise BlankGenerationException, "NormalFieldGenerator: Validation failed for arguments: name #{name}, data_type #{data_type}, mean #{mean}, std_dev #{std_dev}, nil_ratio #{nil_ratio}, nil_value #{nil_value}"
     end    
     
     # Manage mean and std_dev. Ints are valid but must be converted to floats for R call. Dates converted to ints to floats.
@@ -188,6 +191,22 @@ class NormalFieldGenerator < FieldGenerator
   
   private
   
+  def load_init_args(args)
+    # name, data_type, mean, std_dev, nil_ratio, nil_value    
+    if args.length == 1 && args[0].class == Hash
+      opts = args[0]
+      return opts[:name], opts[:data_type], opts[:mean], opts[:std_dev], opts[:nil_ratio], opts[:nil_value]
+    elsif args.length == 4
+      return args[0], args[1], args[2], args[3], nil, nil
+    elsif args.length == 5
+      return args[0], args[1], args[2], args[3], args[4], nil     
+    elsif args.length == 6
+      return args[0], args[1], args[2], args[3], args[4], args[5]
+    else
+      raise BlankGenerationException, "NormalFieldGenerator: illegal arguments passed to #initialize() #{args.inspect}"
+    end
+  end
+  
   def validate    
     return false if not super
     return false if ! @nil_ratio.nil? && @nil_ratio.class != Float
@@ -204,9 +223,11 @@ end
 class RandomFieldGenerator < FieldGenerator
   attr_accessor :nil_ratio, :nil_value, :date_flag
 
-  def initialize(name, data_type, min, max, nil_ratio=nil, nil_value=nil)
+  def initialize(*args) # name, data_type, min, max, nil_ratio=nil, nil_value=nil
+    name, data_type, min, max, nil_ratio, nil_value = load_init_args args
+    
     if data_type != INT && data_type != FLOAT && data_type != DATE
-      raise BlankGenerationException, "NormalGenerator: illegal value for data_type, != INT, FLOAT, DATE: data_type #{data_type}"
+      raise BlankGenerationException, "RandomFieldGenerator: illegal value for data_type, != INT, FLOAT, DATE: data_type #{data_type}"
     end
         
     super(name, data_type)
@@ -217,7 +238,7 @@ class RandomFieldGenerator < FieldGenerator
     @date_flag = data_type == DATE
         
     if not validate
-      raise BlankGenerationException, "RandomGenerator: Validation failed for arguments: name #{name}, data_type #{data_type}, min #{min}, max #{max}, nil_ratio #{nil_ratio}, nil_value #{nil_value}"
+      raise BlankGenerationException, "RandomFieldGenerator: Validation failed for arguments: name #{name}, data_type #{data_type}, min #{min}, max #{max}, nil_ratio #{nil_ratio}, nil_value #{nil_value}"
     end
 
     if @date_flag
@@ -263,6 +284,22 @@ class RandomFieldGenerator < FieldGenerator
   
   private
   
+  def load_init_args(args)
+    # name, data_type, min, max, nil_ratio, nil_value    
+    if args.length == 1 && args[0].class == Hash
+      opts = args[0]
+      return opts[:name], opts[:data_type], opts[:min], opts[:max], opts[:nil_ratio], opts[:nil_value]
+    elsif args.length == 4
+      return args[0], args[1], args[2], args[3], nil, nil
+    elsif args.length == 5
+      return args[0], args[1], args[2], args[3], args[4], nil     
+    elsif args.length == 6
+      return args[0], args[1], args[2], args[3], args[4], args[5]
+    else
+      raise BlankGenerationException, "RandomFieldGenerator: illegal arguments passed to #initialize() #{args.inspect}"
+    end
+  end  
+  
   def validate
     return false if not super
     return false if !@nil_ratio.nil? && @nil_ratio.class != Float    
@@ -279,14 +316,15 @@ end
 class DictionaryFieldGenerator < FieldGenerator
   attr_accessor :path
   
-  def initialize(name, path, nil_ratio=nil, nil_value=nil)
+  def initialize(*args) # name, path, nil_ratio=nil, nil_value=nil
+    name, path, nil_ratio, nil_value = load_init_args args
     super(name, STRING)
     @path = path
     @nil_ratio = nil_ratio
     @nil_value = nil_value
     
     if not validate
-      raise BlankGenerationException, "DictionaryGenerator: Validation failed for arguments: name #{name}, path #{path}, nil_ratio #{nil_ratio}, nil_value #{nil_value}"
+      raise BlankGenerationException, "DictionaryFieldGenerator: Validation failed for arguments: name #{name}, path #{path}, nil_ratio #{nil_ratio}, nil_value #{nil_value}"
     end    
 
     # Test/cache for strings from the dictionary for this histogram entry
@@ -308,6 +346,22 @@ class DictionaryFieldGenerator < FieldGenerator
   
   private
   
+  def load_init_args(args)
+    # name, path, nil_ratio, nil_value    
+    if args.length == 1 && args[0].class == Hash
+      opts = args[0]
+      return opts[:name], opts[:path], opts[:nil_ratio], opts[:nil_value]
+    elsif args.length == 2
+      return args[0], args[1], nil, nil
+    elsif args.length == 3
+      return args[0], args[1], args[2], nil     
+    elsif args.length == 4
+      return args[0], args[1], args[2], args[3]
+    else
+      raise BlankGenerationException, "DictionaryFieldGenerator: illegal arguments passed to #initialize() #{args.inspect}"
+    end
+  end  
+  
   def validate
     return false if not super
     return false if ! @nil_ratio.nil? && @nil_ratio.class != Float
@@ -318,7 +372,8 @@ end
 class ValueSetFieldGenerator < FieldGenerator
   attr_accessor :values, :nil_ratio, :nil_value
   
-  def initialize(name, values, nil_ratio=nil, nil_value=nil)
+  def initialize(*args) # name, values, nil_ratio=nil, nil_value=nil
+    name, values, nil_ratio, nil_value = load_init_args args
     # Allow heterogeneous types because we just take an array and pull values from indices to generate distribution
     super(name, ANY)
     @values = values
@@ -341,6 +396,22 @@ class ValueSetFieldGenerator < FieldGenerator
   end
 
   private
+  
+  def load_init_args(args)
+    # name, values, nil_ratio, nil_value   
+    if args.length == 1 && args[0].class == Hash
+      opts = args[0]
+      return opts[:name], opts[:values], opts[:nil_ratio], opts[:nil_value]
+    elsif args.length == 2
+      return args[0], args[1], nil, nil
+    elsif args.length == 3
+      return args[0], args[1], args[2], nil     
+    elsif args.length == 4
+      return args[0], args[1], args[2], args[3]
+    else
+      raise BlankGenerationException, "ValueSetFieldGenerator: illegal arguments passed to #initialize() #{args.inspect}"
+    end
+  end  
   
   def validate
     return false if not super
@@ -366,41 +437,42 @@ class HistogramFieldGenerator < FieldGenerator
     end    
   end 
   
-  def initialize(name, hist_type)
-    # Called with ANY because Histogram uses Generators passed in #add_bucket() and each of these is a valid generator object
+  def initialize(*args) # name , hist_type
+    name, hist_type = load_init_args args
+    # Called with ANY because Histogram uses Generators passed in #add_bucket_generator() and each of these is a valid generator object
     super(name, ANY) 
     @hist_type = hist_type
     @buckets = []
-    # Maintain running total in #add_bucket() which can't exceed 1.0 and must be equal to 1.0 when #generate() is called
+    # Maintain running total in #add_bucket_generator() which can't exceed 1.0 and must be equal to 1.0 when #generate() is called
     @total_share = 0.0
     if not validate
       raise BlankGenerationException, "HistogramGenerator: Validation failed for arguments: name #{name}, hist_type #{hist_type}"
     end
   end
   
-  def add_bucket(share, generator)
+  def add_bucket_generator(share, generator)
     if share.class != Float || (share.class == Float && (share < 0.0 || share > 1.0))
-      raise BlankGenerationException, "HistogramGenerator::add_bucket(): Validation failed for arguments: share #{share}. Arg not a Float or not in range 0.0 <= x <= 1.0"
+      raise BlankGenerationException, "HistogramGenerator::add_bucket_generator(): Validation failed for arguments: share #{share}. Arg not a Float or not in range 0.0 <= x <= 1.0"
     end
     if @total_share + share > 1.0
-      raise BlankGenerationException, "HistogramGenerator::add_bucket(): total_share + share cannot exceed 1.0. total_share #{total_share}, share #{share}"        
+      raise BlankGenerationException, "HistogramGenerator::add_bucket_generator(): total_share + share cannot exceed 1.0. total_share #{total_share}, share #{share}"        
     end
     cls = generator.class
     if cls != RandomFieldGenerator && cls != ValueSetFieldGenerator && cls != DictionaryFieldGenerator
-      raise BlankGenerationException, "HistogramGenerator::add_bucket(): Validation failed for arguments: generator #{generator.inspect}. Arg not a valid generator type, either RandomFieldGenerator, DictionaryFieldGenerator or ValueSetGenerator"
+      raise BlankGenerationException, "HistogramGenerator::add_bucket_generator(): Validation failed for arguments: generator #{generator.inspect}. Arg not a valid generator type, either RandomFieldGenerator, DictionaryFieldGenerator or ValueSetGenerator"
     end
     # Enforce that all generators are the same type as each other and as the declared type of the Histogram
     # So the class can generate arbitrary distributions but of homogenous data
     if ((cls == RandomFieldGenerator && @hist_type != HIST_TYPE_RANDOM) || 
       (cls == ValueSetFieldGenerator && @hist_type != HIST_TYPE_VALUE_SET) ||
       (cls == DictionaryFieldGenerator && @hist_type != HIST_TYPE_DICTIONARY))
-      raise BlankGenerationException, "HistogramGenerator::add_bucket(): Validation failed for values: generator #{generator.inspect} and hist_type #{hist_type}. Generator type doesn't match Histrogram type"
+      raise BlankGenerationException, "HistogramGenerator::add_bucket_generator(): Validation failed for values: generator #{generator.inspect} and hist_type #{hist_type}. Generator type doesn't match Histrogram type"
     end
     # Enforce the case that all RandomFieldGenerators added (if the Histogram is type HIST_TYPE_RANDOM)
     #  must be of homogenous data, either all Fixnum or all Float. If this isn't the first generator and this one is Random, then its data type must
     #  match previous generator's data type.
     if cls == RandomFieldGenerator && @buckets.length > 0 && @buckets.last.generator.data_type != generator.data_type
-      raise BlankGenerationException, "HistogramGenerator::add_bucket(): Validation failed for values: generator #{generator.inspect} and buckets #{@buckets}. Generator data type doesn't match existing Histogram data type."    
+      raise BlankGenerationException, "HistogramGenerator::add_bucket_generator(): Validation failed for values: generator #{generator.inspect} and buckets #{@buckets}. Generator data type doesn't match existing Histogram data type."    
     end
 
     @buckets.push Bucket.new(@total_share, @total_share + share, generator)
@@ -427,6 +499,18 @@ class HistogramFieldGenerator < FieldGenerator
   
   private
   
+  def load_init_args(args)
+    # name, hist_type   
+    if args.length == 1 && args[0].class == Hash
+      opts = args[0]
+      return opts[:name], opts[:hist_type]
+    elsif args.length == 2
+      return args[0], args[1]
+    else
+      raise BlankGenerationException, "HistogramFieldGenerator: illegal arguments passed to #initialize() #{args.inspect}"
+    end
+  end  
+  
   def validate
     return false if @hist_type != HIST_TYPE_RANDOM && @hist_type != HIST_TYPE_VALUE_SET && @hist_type != HIST_TYPE_DICTIONARY
     true
@@ -439,11 +523,12 @@ class IdFieldGenerator < FieldGenerator
   
   attr_accessor :id_int_base, :id_int_step
   
-  def initialize(name, id_int_base=nil, id_int_step=nil)
+  def initialize(*args) # name, id_int_base=nil, id_int_step=nil
+    name, id_int_base, id_int_step = load_init_args args
     super(name, INT)
     @id_int_base = id_int_base || DEFAULT_ID_INT_BASE
     @id_int_step = id_int_step || DEFAULT_ID_INT_STEP
-    if ! self.validate
+    if not validate
       raise BlankGenerationException, "IdFieldGenerator: Validation failed for arguments: name #{name}, id_int_base #{id_int_base}, id_int_step #{id_int_step}"
     end
   end
@@ -457,6 +542,24 @@ class IdFieldGenerator < FieldGenerator
     dist
   end
   
+  private
+
+  def load_init_args(args)
+    # name, id_int_base=nil, id_int_step=nil   
+    if args.length == 1 && args[0].class == Hash
+      opts = args[0]
+      return opts[:name], opts[:id_int_base], opts[:id_int_step]
+    elsif args.length == 1
+      return args[0], nil, nil
+    elsif args.length == 2
+      return args[0], args[1], nil
+    elsif args.length == 3
+      return args[0], args[1], args[2]
+    else
+      raise BlankGenerationException, "IdFieldGenerator: illegal arguments passed to #initialize() #{args.inspect}"
+    end
+  end  
+  
   def validate
     return false if ! @nil_ratio.nil? && @nil_ratio.class != Float
     true
@@ -464,7 +567,8 @@ class IdFieldGenerator < FieldGenerator
 end
 
 class IdUuidFieldGenerator < FieldGenerator
-  def initialize(name)
+  def initialize(*args) # name
+    name = load_init_args args
     super(name, STRING)
   end
 
@@ -472,6 +576,20 @@ class IdUuidFieldGenerator < FieldGenerator
     require 'uuidtools'
     num_records.times.collect {UUIDTools::UUID.random_create}
   end
+  
+  private
+  
+  def load_init_args(args)
+    # name   
+    if args.length == 1 && args[0].class == Hash
+      opts = args[0]
+      return opts[:name]
+    elsif args.length == 1
+      return args[0]
+    else
+      raise BlankGenerationException, "IdUuidFieldGenerator: illegal arguments passed to #initialize() #{args.inspect}"
+    end
+  end  
 end
 
 

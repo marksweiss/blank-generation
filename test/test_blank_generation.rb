@@ -243,11 +243,11 @@ class BlankGenerator_Test < Test::Unit::TestCase
     rand_field_gen_1 = RandomFieldGenerator.new("", FieldGenerator::INT, 1, 1)
     rand_field_gen_2 = RandomFieldGenerator.new("", FieldGenerator::INT, 2, 2)
     share = 0.3
-    hist_field_gen.add_bucket(share, rand_field_gen_1)
-    hist_field_gen.add_bucket(share, rand_field_gen_2)
+    hist_field_gen.add_bucket_generator(share, rand_field_gen_1)
+    hist_field_gen.add_bucket_generator(share, rand_field_gen_2)
     share = 0.4
     rand_field_gen_3 = RandomFieldGenerator.new("", FieldGenerator::INT, 3, 3)
-    hist_field_gen.add_bucket(share, rand_field_gen_3)
+    hist_field_gen.add_bucket_generator(share, rand_field_gen_3)
     
     g = BlankGenerator.new
     g.add_field_generator hist_field_gen
@@ -261,7 +261,7 @@ class BlankGenerator_Test < Test::Unit::TestCase
     path = "./test_dictionary.txt"
     dict_field_gen = DictionaryFieldGenerator.new("col", path)
     share = 1.0
-    hist_field_gen.add_bucket(share, dict_field_gen)
+    hist_field_gen.add_bucket_generator(share, dict_field_gen)
     g = BlankGenerator.new
     g.add_field_generator hist_field_gen
     dist = g.generate num_records
@@ -273,7 +273,7 @@ class BlankGenerator_Test < Test::Unit::TestCase
     hist_field_gen = HistogramFieldGenerator.new("col", HistogramFieldGenerator::HIST_TYPE_VALUE_SET)
     value_set_field_gen = ValueSetFieldGenerator.new("col", ["hello world", "goodbye chicken"])
     share = 1.0
-    hist_field_gen.add_bucket(share, value_set_field_gen)
+    hist_field_gen.add_bucket_generator(share, value_set_field_gen)
     g = BlankGenerator.new
     g.add_field_generator hist_field_gen
     dist = g.generate num_records
@@ -348,6 +348,91 @@ class BlankGenerator_Test < Test::Unit::TestCase
     # One value is deisgnated nil_value because nil_ratio is 1.0
     assert(((dist_json[0]["col"] == 20 && dist_json[1]["col"] == -1) || (dist_json[0]["col"] == -1 && dist_json[1]["col"] == 20)), "test__generate_by_normal_int_nil_values failed. dist returned == #{dist.inspect}")
   end
+  
+  def test__generate_by_normal_int_options_hash
+    num_records = 2
+    g = BlankGenerator.new
+    g.add_field_generator NormalFieldGenerator.new :name => "col", :data_type => FieldGenerator::INT, :mean => 20.0, :std_dev => 0.0
+    dist = g.generate num_records
+    # Default out format is JSON
+    assert(dist == "[{\"col\":20},{\"col\":20}]", "test__generate_by_normal failed. dist returned == #{dist.inspect}")
+    # Change out_format to CSV
+    g.formatter = CsvFormatter.new
+    dist = g.generate num_records    
+    assert(dist == "20\n20\n", "test__generate_by_normal failed. dist returned == #{dist.inspect}")
+  end
+  
+  def test__generate_by_random_int_options_hash
+    num_records = 2
+    g = BlankGenerator.new
+    g.add_field_generator RandomFieldGenerator.new :name => "col", :data_type => FieldGenerator::INT, :min => 1, :max => 1
+    dist = g.generate num_records
+    # Default out format is JSON
+    assert(dist == "[{\"col\":1},{\"col\":1}]", "test__generate_by_random failed. dist returned == #{dist.inspect}")
+    # Change out_format to CSV
+    g.formatter = CsvFormatter.new
+    dist = g.generate num_records    
+    assert(dist == "1\n1\n", "test__generate_by_random failed. dist returned == #{dist.inspect}")
+  end
+  
+  def test__generate_by_dictionary_options_hash
+    num_records = 2
+    g = BlankGenerator.new
+    g.add_field_generator DictionaryFieldGenerator.new :name => "col", :path => "./test_dictionary.txt"
+    dist = g.generate num_records
+    dist_json = JSON.parse dist
+    assert( ((dist_json[0]["col"] == "hello world" || dist_json[0]["col"] == "goodbye chicken") && (dist_json[1]["col"] == "hello world" || dist_json[1]["col"] == "goodbye chicken")), "test__generate_by_dictionary failed. dist returned == #{dist.inspect}")
+    # Change out_format to CSV
+    g.formatter = CsvFormatter.new
+    num_records = 1
+    dist = g.generate num_records    
+    assert(dist == "hello world\n" || dist == "goodbye chicken\n", "test__generate_by_dictionary failed. dist returned == #{dist.inspect}")
+  end
+  
+  def test__generate_by_value_set_options_hash
+    num_records = 2
+    g = BlankGenerator.new
+    g.add_field_generator ValueSetFieldGenerator.new :name => "col", :values => [30, 30]
+    dist = g.generate num_records
+    dist_json = JSON.parse dist
+    assert(dist_json[0]["col"] == 30 && dist_json[1]["col"] == 30, "test__generate_by_value_set failed. dist returned == #{dist.inspect}")
+    # Change to different values and mixed types
+    g = BlankGenerator.new
+    g.add_field_generator ValueSetFieldGenerator.new :name => "col", :values => [30, "hello world"]
+    dist = g.generate num_records
+    dist_json = JSON.parse dist
+    assert(((dist_json[0]["col"] == 30 || dist_json[0]["col"] == "hello world") && 
+            (dist_json[1]["col"] == 30 || dist_json[1]["col"] == "hello world")), "test__generate_by_value_set failed. dist returned == #{dist.inspect}")
+    # Change out_format to CSV
+    g.formatter = CsvFormatter.new
+    num_records = 1
+    dist = g.generate num_records    
+    assert(dist == "hello world\n" || dist == "30\n", "test__generate_by_value_set failed. dist returned == #{dist.inspect}")
+  end
+  
+  def test__generate_by_histogram_options_hash
+    # Define the Histogram generator
+    num_records = 2
+    hist_field_gen = HistogramFieldGenerator.new :name => "col", :hist_type => HistogramFieldGenerator::HIST_TYPE_RANDOM
+    # Define two RandomFieldGenerators and add them as bucket generators to the Histogram. Each will generate values with their share (bucket width)
+    #  of the total distribution, with total width == 1.0. So we get a random distribution with each element falling into a bucket by bucket share,
+    #  and then the value is generated by the generator for that bucket by calling its #generate() method
+    rand_field_gen_1 = RandomFieldGenerator.new :name => "", :data_type => FieldGenerator::INT, :min => 1, :max => 1
+    rand_field_gen_2 = RandomFieldGenerator.new :name => "", :data_type => FieldGenerator::INT, :min => 2, :max => 2
+    share = 0.3
+    hist_field_gen.add_bucket_generator(share, rand_field_gen_1)
+    hist_field_gen.add_bucket_generator(share, rand_field_gen_2)
+    rand_field_gen_3 = RandomFieldGenerator.new :name => "", :data_type => FieldGenerator::INT, :min => 3, :max => 3
+    share = 0.4
+    hist_field_gen.add_bucket_generator(share, rand_field_gen_3)
+    
+    g = BlankGenerator.new
+    g.add_field_generator hist_field_gen
+    dist = g.generate num_records
+    dist_json = JSON.parse dist    
+    assert(((dist_json[0]["col"] == 1 || dist_json[0]["col"] == 2 || dist_json[0]["col"] == 3) && 
+            (dist_json[0]["col"] == 1 || dist_json[0]["col"] == 2 || dist_json[0]["col"] == 3)), "test__generate_by_histogram failed. dist returned == #{dist.inspect}")
+  end  
 
   def test__generate_full_record
     num_records = 1
@@ -370,4 +455,41 @@ class BlankGenerator_Test < Test::Unit::TestCase
             dist_json[0]["LastModified"] == "1997-07-16T14:20:30-04:00" && 
             dist_json[0]["AvgPurchase"] == 20.0), "test__generate_full_record failed. dist returned == #{dist.inspect}")    
   end
+  
+  def test__generate_by_id_int_options_hash
+    num_records = 3 
+    # Test using default values for id_int_base and id_int_step, 0 and 1 respectively. So default for 3 records will be [0, 1, 2]
+    g = BlankGenerator.new
+    g.add_field_generator IdFieldGenerator.new :name => "col"
+    dist = g.generate num_records
+    dist_json = JSON.parse dist    
+    assert((dist_json[0]["col"] == 0 && dist_json[1]["col"] == 1 && dist_json[2]["col"] == 2), "test__generate_by_id_int failed. dist returned == #{dist.inspect}")
+    # Test using id_int_base
+    g = BlankGenerator.new
+    g.add_field_generator IdFieldGenerator.new :name => "col", :id_int_base => 10
+    dist = g.generate num_records
+    dist_json = JSON.parse dist
+    assert((dist_json[0]["col"] == 10 && dist_json[1]["col"] == 11 && dist_json[2]["col"] == 12), "test__generate_by_id_int failed. dist returned == #{dist.inspect}")
+    # Test using id_int_base and id_int_step
+    g = BlankGenerator.new
+    g.add_field_generator IdFieldGenerator.new :name => "col", :id_int_base => 10, :id_int_step => 2
+    dist = g.generate num_records
+    dist_json = JSON.parse dist    
+    assert((dist_json[0]["col"] == 10 && dist_json[1]["col"] == 12 && dist_json[2]["col"] == 14), "test__generate_by_id_int failed. dist returned == #{dist.inspect}")
+  end
+
+  def test__generate_by_id_uuid_options_hash
+    num_records = 2
+    g = BlankGenerator.new
+    g.add_field_generator IdUuidFieldGenerator.new :name => "col"
+    dist = g.generate num_records
+    dist_json = JSON.parse dist    
+    dist_json.each do |id|      
+      # Based on the source code in the documentation, parse will raise an exception if it can't parse its argument
+      assert_nothing_raised do
+        UUIDTools::UUID.parse(id["col"].to_s)
+      end
+    end
+  end
+    
 end
