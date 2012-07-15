@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>test_invalid_field_def_fields (BlankValidator_Test)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File test/test_blank_validation.rb, line 127</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">test_invalid_field_def_fields</span>
+    <span class="ruby-comment cmt"># name  </span>
+    <span class="ruby-comment cmt"># Missing required field 'name'</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;dist_type&quot; : &quot;id_mongo_objid&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__missing_name&quot;</span>)    
+    <span class="ruby-comment cmt"># Missing value for required field 'name'</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : null, &quot;dist_type&quot; : &quot;id_mongo_objid&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__missing_name_value&quot;</span>)    
+    <span class="ruby-comment cmt"># Empty value for required field 'name'</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;&quot;, &quot;dist_type&quot; : &quot;id_mongo_objid&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__name_empty_value&quot;</span>)    
+    <span class="ruby-comment cmt"># Invalid type required field 'name', valid types: String</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : 100, &quot;dist_type&quot; : &quot;id_mongo_objid&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__name_invalid_type&quot;</span>)    
+    
+    <span class="ruby-comment cmt"># dist_type</span>
+    <span class="ruby-comment cmt"># Missing required field 'dist_type'</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__missing_dist_type&quot;</span>)    
+    <span class="ruby-comment cmt"># Missing value for required field 'dist_type'</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;dist_type&quot; : null}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__missing_dist_type_value&quot;</span>)    
+    <span class="ruby-comment cmt"># Empty value for required field 'dist_type'</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;dist_type&quot; : &quot;&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__dist_type_empty_value&quot;</span>)    
+    <span class="ruby-comment cmt"># Invalid value for required field 'dist_type'</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;dist_type&quot; : &quot;Snippy&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__dist_type_invalid_value&quot;</span>)
+    <span class="ruby-comment cmt"># Invalid type for required field 'dist_type', valid types: String</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;dist_type&quot; : 100}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__dist_type_invalid_type&quot;</span>)
+    
+    <span class="ruby-comment cmt"># example_value</span>
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;normal&quot; requires 'example_value', field missing</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;mean&quot; : 1.5, &quot;std_dev&quot; : 0.25, &quot;dist_type&quot; : &quot;normal&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__normal_missing_example_value&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;normal&quot; requires 'example_value', field present but has null value</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : null, &quot;mean&quot; : 1.5, &quot;std_dev&quot; : 0.25, &quot;dist_type&quot; : &quot;normal&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__normal_null_example_value&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;normal&quot; requires 'example_value', field present but has invalid type, valid types: Fixnum, Float</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : &quot;x&quot;, &quot;mean&quot; : 1.5, &quot;std_dev&quot; : 0.25, &quot;dist_type&quot; : &quot;normal&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__normal_invalid_example_type&quot;</span>)
+    <span class="ruby-comment cmt">#</span>
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;random&quot; requires 'example_value', field missing</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;min&quot; : 1, &quot;max&quot; : 100000, &quot;allow_repeat_values&quot; : true, &quot;dist_type&quot; : &quot;random&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__random_missing_example_value&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;random&quot; requires 'example_value', field present but has null value</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : null, &quot;min&quot; : 1, &quot;max&quot; : 100000, &quot;allow_repeat_values&quot; : true, &quot;dist_type&quot; : &quot;random&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__random_null_example_value&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;random&quot; requires 'example_value', field present but has invalid type, valid types: Fixnum, Float</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : &quot;x&quot;, &quot;min&quot; : 1, &quot;max&quot; : 100000, &quot;allow_repeat_values&quot; : true, &quot;dist_type&quot; : &quot;random&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__random_invalid_example_type&quot;</span>)
+    <span class="ruby-comment cmt">#</span>
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;histogram&quot; and 'histogram' field is present requires 'example_value', field missing</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;dist_type&quot; : &quot;histogram&quot;, &quot;histogram&quot; : [{&quot;min&quot; : 0, &quot;max&quot; : 1123, &quot;count&quot; : 50}, {&quot;min&quot; : 1124, &quot;max&quot; : 18532, &quot;count&quot; : 53}]}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__histogram_missing_example_value&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;histogram&quot; and 'histogram' field is present requires 'example_value', field present but has null value</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : null, &quot;dist_type&quot; : &quot;histogram&quot;, &quot;histogram&quot; : [{&quot;min&quot; : 0, &quot;max&quot; : 1123, &quot;count&quot; : 50}, {&quot;min&quot; : 1124, &quot;max&quot; : 18532, &quot;count&quot; : 53}]}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__histogram_null_example_value&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;histogram&quot; and 'histogram' field is present requires 'example_value', field present but has invalid type, valid types: Array (of JSON objects)</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : &quot;x&quot;, &quot;dist_type&quot; : &quot;histogram&quot;, &quot;histogram&quot; : [{&quot;min&quot; : 0, &quot;max&quot; : 1123, &quot;count&quot; : 50}, {&quot;min&quot; : 1124, &quot;max&quot; : 18532, &quot;count&quot; : 53}]}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__histogram_invalid_example_type&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;histogram&quot; and 'histogram' field is not present but 'value_set' is so 'example_value' invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;dist_type&quot; : &quot;histogram&quot;, &quot;histogram&quot; : [{&quot;value_set&quot; : [&quot;a&quot;, &quot;b&quot;, &quot;c&quot;], &quot;count&quot;: 50}, {&quot;value_set&quot; : [&quot;d&quot;, &quot;e&quot;, &quot;f&quot;], &quot;count&quot;: 53}]}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__histogram_value_set_example_value_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;histogram&quot; and 'histogram' field is not present but 'dictionary' is so 'example_value' invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;dist_type&quot; : &quot;histogram&quot;, &quot;histogram&quot; : [{&quot;dictionary&quot; : &quot;/PATH_TO_DICT_1&quot;, &quot;count&quot; : 50}, {&quot;dictionary&quot; : &quot;/PATH_TO_DICT_2&quot;, &quot;count&quot; : 53}]}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__histogram_dictionary_example_value_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt">#</span>
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;value_set&quot; then 'example_value' is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 100, &quot;dist_type&quot; : &quot;value_set&quot;}!</span>
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__value_set_example_value_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;id_int&quot; then 'example_value' is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 100, &quot;dist_type&quot; : &quot;id_int&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__id_int_example_value_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;id_uuid&quot; then 'example_value' is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 100, &quot;dist_type&quot; : &quot;id_uuid&quot;}!</span> 
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__id_uuid_example_value_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;id_mongo_objid&quot; then 'example_value' is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 100, &quot;dist_type&quot; : &quot;id_mongo_objid&quot;}!</span> 
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__id_mongo_objid_example_value_is_invalid&quot;</span>)
+    
+    <span class="ruby-comment cmt"># mean</span>
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;normal&quot; requires 'mean', field missing</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;std_dev&quot; : 0.25, &quot;dist_type&quot; : &quot;normal&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__normal_missing_mean&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;normal&quot; requires 'mean', field has null value</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;mean&quot; : null, &quot;std_dev&quot; : 0.25, &quot;dist_type&quot; : &quot;normal&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__normal_null_mean&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;normal&quot; requires 'mean', field has invalid type, valid types: Fixnum, Float</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;mean&quot; : &quot;x&quot;, &quot;std_dev&quot; : 0.25, &quot;dist_type&quot; : &quot;normal&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__normal_invalid_type&quot;</span>)
+    <span class="ruby-comment cmt">#</span>
+    <span class="ruby-comment cmt"># 'dist_type' == 'random' and 'mean' field is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;mean&quot; : 0.5, &quot;min&quot; : 1, &quot;max&quot; : 100000, &quot;allow_repeat_values&quot; : true, &quot;dist_type&quot; : &quot;random&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__random_mean_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == 'histogram' and 'mean' field is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;mean&quot; : 0.5, &quot;dist_type&quot; : &quot;histogram&quot;, &quot;histogram&quot; : [{&quot;min&quot; : 0, &quot;max&quot; : 1123, &quot;count&quot; : 50}, {&quot;min&quot; : 1124, &quot;max&quot; : 18532, &quot;count&quot; : 53}]}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__histogram_mean_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == 'value_set' and 'mean' field is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;mean&quot; : 0.5, &quot;dist_type&quot; : &quot;value_set&quot;, &quot;value_set&quot; : [1, 2, 3, 5, 8, 13, 21]}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__value_set_mean_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;id_int&quot; then 'mean' is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;mean&quot; : 0.5, &quot;dist_type&quot; : &quot;id_int&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__id_int_mean_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;id_uuid&quot; then 'mean' is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;mean&quot; : 0.5, &quot;dist_type&quot; : &quot;id_uuid&quot;}!</span> 
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__id_uuid_mean_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;id_mongo_objid&quot; then 'mean' is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;mean&quot; : 0.5, &quot;dist_type&quot; : &quot;id_mongo_objid&quot;}!</span> 
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__id_mongo_objid_mean_is_invalid&quot;</span>)
+    
+    <span class="ruby-comment cmt"># std_dev</span>
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;normal&quot; requires 'std_dev', field missing</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;mean&quot; : 1, &quot;dist_type&quot; : &quot;normal&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__normal_missing_std_dev&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;normal&quot; requires 'std_dev', field has null value</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1,  &quot;mean&quot; : 1, &quot;std_dev&quot; : null, &quot;dist_type&quot; : &quot;normal&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__normal_null_std_dev&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;normal&quot; requires 'std_dev', field has invalid type, valid types: Fixnum, Float</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;mean&quot; : &quot;x&quot;, &quot;std_dev&quot; : &quot;x&quot;, &quot;dist_type&quot; : &quot;normal&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__normal_invalid_std_dev&quot;</span>)
+    <span class="ruby-comment cmt">#</span>
+    <span class="ruby-comment cmt"># 'dist_type' == 'random' and 'std_dev' field is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;std_dev&quot; : 0.5, &quot;min&quot; : 1, &quot;max&quot; : 100000, &quot;allow_repeat_values&quot; : true, &quot;dist_type&quot; : &quot;random&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__random_std_dev_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == 'histogram' and 'std_dev' field is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;std_dev&quot; : 0.5, &quot;dist_type&quot; : &quot;histogram&quot;, &quot;histogram&quot; : [{&quot;min&quot; : 0, &quot;max&quot; : 1123, &quot;count&quot; : 50}, {&quot;min&quot; : 1124, &quot;max&quot; : 18532, &quot;count&quot; : 53}]}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__histogram_std_dev_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == 'value_set' and 'std_dev' field is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;std_dev&quot; : 0.5, &quot;dist_type&quot; : &quot;value_set&quot;, &quot;value_set&quot; : [1, 2, 3, 5, 8, 13, 21]}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__value_set_std_dev_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;id_int&quot; then 'std_dev' is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;std_dev&quot; : 0.5, &quot;dist_type&quot; : &quot;id_int&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__id_int_std_dev_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;id_uuid&quot; then 'std_dev' is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;std_dev&quot; : 0.5, &quot;dist_type&quot; : &quot;id_uuid&quot;}!</span> 
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__id_uuid_std_dev_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;id_mongo_objid&quot; then 'std_dev' is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;std_dev&quot; : 0.5, &quot;dist_type&quot; : &quot;id_mongo_objid&quot;}!</span> 
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__id_mongo_objid_std_dev_is_invalid&quot;</span>)
+    
+    <span class="ruby-comment cmt"># min</span>
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;random&quot; requires 'min', field missing</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;max&quot; : 100000, &quot;allow_repeat_values&quot; : true, &quot;dist_type&quot; : &quot;random&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__random_missing_min&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;random&quot; requires 'min', field has null value</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;min&quot; : null, &quot;max&quot; : 100000, &quot;allow_repeat_values&quot; : true, &quot;dist_type&quot; : &quot;random&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__random_null_min&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;random&quot; requires 'min', field has invalid type, valid types: Fixnum, Float</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;min&quot; : &quot;x&quot;, &quot;max&quot; : 100000, &quot;allow_repeat_values&quot; : true, &quot;dist_type&quot; : &quot;random&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__random_invalid_min&quot;</span>)
+    <span class="ruby-comment cmt">#</span>
+    <span class="ruby-comment cmt"># 'dist_type' == 'normal' and 'min' field is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;min&quot; : 1, &quot;std_dev&quot; : 0.25, &quot;dist_type&quot; : &quot;normal&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__normal_min_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == 'histogram' and 'min' field is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;min&quot; : 1, &quot;dist_type&quot; : &quot;histogram&quot;, &quot;histogram&quot; : [{&quot;min&quot; : 0, &quot;max&quot; : 1123, &quot;count&quot; : 50}, {&quot;min&quot; : 1124, &quot;max&quot; : 18532, &quot;count&quot; : 53}]}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__histogram_min_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == 'value_set' and 'min' field is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;min&quot; : 1, &quot;dist_type&quot; : &quot;value_set&quot;, &quot;value_set&quot; : [1, 2, 3, 5, 8, 13, 21]}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__value_set_min_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;id_int&quot; then 'min' is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;min&quot; : 1, &quot;dist_type&quot; : &quot;id_int&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__id_int_min_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;id_uuid&quot; then 'min' is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;min&quot; : 1, &quot;dist_type&quot; : &quot;id_uuid&quot;}!</span> 
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__id_uuid_min_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;id_mongo_objid&quot; then 'min' is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;min&quot; : 1, &quot;dist_type&quot; : &quot;id_mongo_objid&quot;}!</span> 
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__id_mongo_objid_min_is_invalid&quot;</span>)    
+    
+    <span class="ruby-comment cmt"># max</span>
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;random&quot; requires 'max', field missing</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;min&quot; : 1, &quot;allow_repeat_values&quot; : true, &quot;dist_type&quot; : &quot;random&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__random_missing_max&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;random&quot; requires 'max', field has null value</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;min&quot; : 1, &quot;max&quot; : null, &quot;allow_repeat_values&quot; : true, &quot;dist_type&quot; : &quot;random&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__random_null_max&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;random&quot; requires 'max', field has invalid type, valid types: Fixnum, Float</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;min&quot; : 1, &quot;max&quot; : &quot;x&quot;, &quot;allow_repeat_values&quot; : true, &quot;dist_type&quot; : &quot;random&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__random_invalid_max&quot;</span>)
+    <span class="ruby-comment cmt">#</span>
+    <span class="ruby-comment cmt"># 'dist_type' == 'normal' and 'max' field is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;max&quot; : 1, &quot;std_dev&quot; : 0.25, &quot;dist_type&quot; : &quot;normal&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__normal_max_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == 'histogram' and 'max' field is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;max&quot; : 1, &quot;dist_type&quot; : &quot;histogram&quot;, &quot;histogram&quot; : [{&quot;min&quot; : 0, &quot;max&quot; : 1123, &quot;count&quot; : 50}, {&quot;min&quot; : 1124, &quot;max&quot; : 18532, &quot;count&quot; : 53}]}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__histogram_max_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == 'value_set' and 'max' field is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;max&quot; : 1, &quot;dist_type&quot; : &quot;value_set&quot;, &quot;value_set&quot; : [1, 2, 3, 5, 8, 13, 21]}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__value_set_max_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;id_int&quot; then 'max' is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;max&quot; : 1, &quot;dist_type&quot; : &quot;id_int&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__id_int_max_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;id_uuid&quot; then 'max' is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;max&quot; : 1, &quot;dist_type&quot; : &quot;id_uuid&quot;}!</span> 
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__id_uuid_max_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;id_mongo_objid&quot; then 'max' is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;max&quot; : 1, &quot;dist_type&quot; : &quot;id_mongo_objid&quot;}!</span> 
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__id_mongo_objid_max_is_invalid&quot;</span>)
+    
+    <span class="ruby-comment cmt"># allow_repeat_values</span>
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;random&quot; requires 'allow_repeat_values', field missing</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;min&quot; : 1, &quot;max&quot; : 100000, &quot;dist_type&quot; : &quot;random&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__random_missing_allow_repeat_values&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;random&quot; requires 'allow_repeat_values', field has null value</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;min&quot; : 1, &quot;max&quot; : 100000, &quot;allow_repeat_values&quot; : null, &quot;dist_type&quot; : &quot;random&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__random_null_allow_repeat_values&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;random&quot; requires 'allow_repeat_values', field has invalid type, valid types: Boolean</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;min&quot; : 1, &quot;max&quot; : 100000, &quot;allow_repeat_values&quot; : &quot;x&quot;, &quot;dist_type&quot; : &quot;random&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__random_invalid_allow_repeat_values&quot;</span>)
+    <span class="ruby-comment cmt">#</span>
+    <span class="ruby-comment cmt"># 'dist_type' == 'normal' and 'allow_repeat_values' field is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;allow_repeat_values&quot; : true, &quot;std_dev&quot; : 0.25, &quot;dist_type&quot; : &quot;normal&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__normal_allow_repeat_values_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == 'histogram' and 'allow_repeat_values' field is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;allow_repeat_values&quot; : true, &quot;dist_type&quot; : &quot;histogram&quot;, &quot;histogram&quot; : [{&quot;min&quot; : 0, &quot;max&quot; : 1123, &quot;count&quot; : 50}, {&quot;min&quot; : 1124, &quot;max&quot; : 18532, &quot;count&quot; : 53}]}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__histogram_allow_repeat_values_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == 'value_set' and 'allow_repeat_values' field is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;allow_repeat_values&quot; : true, &quot;dist_type&quot; : &quot;value_set&quot;, &quot;value_set&quot; : [1, 2, 3, 5, 8, 13, 21]}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__value_set_allow_repeat_values_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;id_int&quot; then 'allow_repeat_values' is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;allow_repeat_values&quot; : true, &quot;dist_type&quot; : &quot;id_int&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__id_int_allow_repeat_values_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;id_uuid&quot; then 'allow_repeat_values' is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;allow_repeat_values&quot; : true, &quot;dist_type&quot; : &quot;id_uuid&quot;}!</span> 
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__id_uuid_allow_repeat_values_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;id_mongo_objid&quot; then 'allow_repeat_values' is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;allow_repeat_values&quot; : true, &quot;dist_type&quot; : &quot;id_mongo_objid&quot;}!</span> 
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__id_mongo_objid_allow_repeat_values_is_invalid&quot;</span>)
+
+    <span class="ruby-comment cmt"># dictionary</span>
+    <span class="ruby-comment cmt"># 'dist_type' == 'normal' and 'dictionary' field is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;dictionary&quot; : &quot;PATH_TO_DICT_1&quot;, &quot;example_value&quot; : 1, &quot;mean&quot; : 10.0, &quot;std_dev&quot; : 0.25, &quot;dist_type&quot; : &quot;normal&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__normal_dictionary_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == 'random' and 'dictionary' field is invalid    </span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;dictionary&quot; : &quot;PATH_TO_DICT_1&quot;, &quot;example_value&quot; : 1, &quot;min&quot; : 1, &quot;max&quot; : 100000, &quot;allow_repeat_values&quot; : true, &quot;dist_type&quot; : &quot;random&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__random_dictionary_is_invalid&quot;</span>)   
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;id_int&quot; then 'dictionary' is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;dictionary&quot; : &quot;PATH_TO_DICT_1&quot;, &quot;dist_type&quot; : &quot;id_int&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__id_int_dictionary_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;id_uuid&quot; then 'dictionary' is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;dictionary&quot; : &quot;PATH_TO_DICT_1&quot;, &quot;dist_type&quot; : &quot;id_uuid&quot;}!</span> 
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__id_uuid_dictionary_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;id_mongo_objid&quot; then 'dictionary' is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;dictionary&quot; : &quot;PATH_TO_DICT_1&quot;, &quot;dist_type&quot; : &quot;id_mongo_objid&quot;}!</span> 
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__id_mongo_objid_dictionary_is_invalid&quot;</span>)    
+    
+    <span class="ruby-comment cmt"># histogram</span>
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;histogram&quot; requires 'histogram', field missing</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;dist_type&quot; : &quot;histogram&quot;, &quot;allow_repeat_values&quot; : true}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__histogram_missing_histogram&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;histogram&quot; requires 'histogram', field has null value</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;dist_type&quot; : &quot;histogram&quot;, &quot;allow_repeat_values&quot; : true, &quot;histogram&quot; : null}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__histogram_null_histogram&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;histogram&quot; requires 'histogram', field has invalid type, valid types: Array (of JSON objects)</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;dist_type&quot; : &quot;histogram&quot;, &quot;allow_repeat_values&quot; : true, &quot;histogram&quot; : &quot;x&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__histogram_invalid_histogram&quot;</span>)
+    <span class="ruby-comment cmt">#    </span>
+    <span class="ruby-comment cmt"># 'dist_type' == 'normal' and 'histogram' field is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;histogram&quot; : [{&quot;min&quot; : 0, &quot;max&quot; : 1123, &quot;count&quot; : 50}, {&quot;min&quot; : 1124, &quot;max&quot; : 18532, &quot;count&quot; : 53}], &quot;example_value&quot; : 1, &quot;mean&quot; : 10.0, &quot;std_dev&quot; : 0.25, &quot;dist_type&quot; : &quot;normal&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__normal_histogram_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == 'random' and 'histogram' field is invalid    </span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;histogram&quot; : [{&quot;min&quot; : 0, &quot;max&quot; : 1123, &quot;count&quot; : 50}, {&quot;min&quot; : 1124, &quot;max&quot; : 18532, &quot;count&quot; : 53}], &quot;example_value&quot; : 1, &quot;min&quot; : 1, &quot;max&quot; : 100000, &quot;allow_repeat_values&quot; : true, &quot;dist_type&quot; : &quot;random&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__random_histogram_is_invalid&quot;</span>)   
+    <span class="ruby-comment cmt"># 'dist_type' == 'value_set' and 'histogram' field is invalid    </span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;histogram&quot; : [{&quot;min&quot; : 0, &quot;max&quot; : 1123, &quot;count&quot; : 50}, {&quot;min&quot; : 1124, &quot;max&quot; : 18532, &quot;count&quot; : 53}], &quot;dist_type&quot; : &quot;value_set&quot;, &quot;value_set&quot; : [1, 2, 3, 5, 8, 13, 21]}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__value_set_histogram_is_invalid&quot;</span>)   
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;id_int&quot; then 'histogram' is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;histogram&quot; : [{&quot;min&quot; : 0, &quot;max&quot; : 1123, &quot;count&quot; : 50}, {&quot;min&quot; : 1124, &quot;max&quot; : 18532, &quot;count&quot; : 53}], &quot;dist_type&quot; : &quot;id_int&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__id_int_histogram_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;id_uuid&quot; then 'histogram' is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;histogram&quot; : [{&quot;min&quot; : 0, &quot;max&quot; : 1123, &quot;count&quot; : 50}, {&quot;min&quot; : 1124, &quot;max&quot; : 18532, &quot;count&quot; : 53}], &quot;dist_type&quot; : &quot;id_uuid&quot;}!</span> 
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__id_uuid_histogram_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;id_mongo_objid&quot; then 'histogram' is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;histogram&quot; : [{&quot;min&quot; : 0, &quot;max&quot; : 1123, &quot;count&quot; : 50}, {&quot;min&quot; : 1124, &quot;max&quot; : 18532, &quot;count&quot; : 53}], &quot;dist_type&quot; : &quot;id_mongo_objid&quot;}!</span> 
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__id_mongo_objid_histogram_is_invalid&quot;</span>)    
+
+    <span class="ruby-comment cmt"># value_set</span>
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;value_set&quot; requires 'value_set' or 'dictionary', both fields missing</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;dist_type&quot; : &quot;value_set&quot;}!</span>
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__value_set_missing_value_set&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;value_set&quot; requires 'value_set' or 'dictionary', field has null value</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;dist_type&quot; : &quot;value_set&quot;, &quot;value_set&quot; : null}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__value_set_null_value_set&quot;</span>)
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;dist_type&quot; : &quot;value_set&quot;, &quot;dictionary&quot; : null}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__value_set_null_dictionary&quot;</span>)
+    <span class="ruby-comment cmt"># # 'dist_type' == &quot;value_set&quot; requires 'value_set' or 'dictionary', field has invalid value</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;dist_type&quot; : &quot;value_set&quot;, &quot;value_set&quot; : &quot;x&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__value_set_invalid_value_set&quot;</span>)
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;dist_type&quot; : &quot;value_set&quot;, &quot;dictionary&quot; : 100}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__value_set_invalid_dictionary&quot;</span>)
+    <span class="ruby-comment cmt">#</span>
+    <span class="ruby-comment cmt"># 'dist_type' == 'normal' and 'value_set' field is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;value_set&quot; : [1, 2, 3, 5, 8, 13, 21], &quot;example_value&quot; : 1, &quot;mean&quot; : 10.0, &quot;std_dev&quot; : 0.25, &quot;dist_type&quot; : &quot;normal&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__normal_value_set_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == 'random' and 'value_set' field is invalid    </span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;value_set&quot; : [1, 2, 3, 5, 8, 13, 21], &quot;example_value&quot; : 1, &quot;min&quot; : 1, &quot;max&quot; : 100000, &quot;allow_repeat_values&quot; : true, &quot;dist_type&quot; : &quot;random&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__random_value_set_is_invalid&quot;</span>)   
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;id_int&quot; then 'value_set' is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;value_set&quot; : [1, 2, 3, 5, 8, 13, 21], &quot;dist_type&quot; : &quot;id_int&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__id_int_value_set_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;id_uuid&quot; then 'value_set' is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;value_set&quot; : [1, 2, 3, 5, 8, 13, 21], &quot;dist_type&quot; : &quot;id_uuid&quot;}!</span> 
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__id_uuid_value_set_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;id_mongo_objid&quot; then 'value_set' is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;value_set&quot; : [1, 2, 3, 5, 8, 13, 21], &quot;dist_type&quot; : &quot;id_mongo_objid&quot;}!</span> 
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__id_mongo_objid_value_set_is_invalid&quot;</span>)    
+
+    <span class="ruby-comment cmt"># id_int_base</span>
+    <span class="ruby-comment cmt"># 'id_int_base' invalid type, valid types: Fixnum</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;dist_type&quot; : &quot;id_int&quot;, &quot;id_int_base&quot; : 1.0}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__many_invalid_int_base&quot;</span>)
+    <span class="ruby-comment cmt">#</span>
+    <span class="ruby-comment cmt"># 'dist_type' == 'normal' and 'id_int_base' field is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;id_int_base&quot; : 0, &quot;example_value&quot; : 1, &quot;mean&quot; : 10.0, &quot;std_dev&quot; : 0.25, &quot;dist_type&quot; : &quot;normal&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__normal_id_int_base_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == 'random' and 'id_int_base' field is invalid    </span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;id_int_base&quot; : 0, &quot;example_value&quot; : 1, &quot;min&quot; : 1, &quot;max&quot; : 100000, &quot;allow_repeat_values&quot; : true, &quot;dist_type&quot; : &quot;random&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__random_id_int_base_is_invalid&quot;</span>)   
+    <span class="ruby-comment cmt"># 'dist_type' == 'value_set' and 'id_int_base' field is invalid    </span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;id_int_base&quot; : 0, &quot;dist_type&quot; : &quot;value_set&quot;, &quot;value_set&quot; : [1, 2, 3, 5, 8, 13, 21]}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__value_set_id_int_base_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == 'histogram' and 'id_int_base' field is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;id_int_base&quot; : 0, &quot;dist_type&quot; : &quot;histogram&quot;, &quot;histogram&quot; : [{&quot;min&quot; : 0, &quot;max&quot; : 1123, &quot;count&quot; : 50}, {&quot;min&quot; : 1124, &quot;max&quot; : 18532, &quot;count&quot; : 53}]}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__histogram_id_int_base_is_invalid&quot;</span>)       
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;id_uuid&quot; then 'id_int_base' is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;id_int_base&quot; : 0, &quot;dist_type&quot; : &quot;id_uuid&quot;}!</span> 
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__id_uuid_id_int_base_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;id_mongo_objid&quot; then 'id_int_base' is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;id_int_base&quot; : 0, &quot;dist_type&quot; : &quot;id_mongo_objid&quot;}!</span> 
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__id_mongo_objid_id_int_base_is_invalid&quot;</span>)    
+
+    <span class="ruby-comment cmt"># id_int_step</span>
+    <span class="ruby-comment cmt"># 'id_int_step' invalid type, valid types: Fixnum</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;dist_type&quot; : &quot;id_int&quot;, &quot;id_int_step&quot; : 1.0}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__many_invalid_int_step&quot;</span>)
+    <span class="ruby-comment cmt">#</span>
+    <span class="ruby-comment cmt"># 'dist_type' == 'normal' and 'id_int_step' field is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;id_int_step&quot; : 0, &quot;example_value&quot; : 1, &quot;mean&quot; : 10.0, &quot;std_dev&quot; : 0.25, &quot;dist_type&quot; : &quot;normal&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__normal_id_int_step_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == 'random' and 'id_int_step' field is invalid    </span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;id_int_step&quot; : 0, &quot;example_value&quot; : 1, &quot;min&quot; : 1, &quot;max&quot; : 100000, &quot;allow_repeat_values&quot; : true, &quot;dist_type&quot; : &quot;random&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__random_id_int_step_is_invalid&quot;</span>)   
+    <span class="ruby-comment cmt"># 'dist_type' == 'value_set' and 'id_int_step' field is invalid    </span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;id_int_step&quot; : 0, &quot;dist_type&quot; : &quot;value_set&quot;, &quot;value_set&quot; : [1, 2, 3, 5, 8, 13, 21]}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__value_set_id_int_step_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == 'histogram' and 'id_int_step' field is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;id_int_step&quot; : 0, &quot;dist_type&quot; : &quot;histogram&quot;, &quot;histogram&quot; : [{&quot;min&quot; : 0, &quot;max&quot; : 1123, &quot;count&quot; : 50}, {&quot;min&quot; : 1124, &quot;max&quot; : 18532, &quot;count&quot; : 53}]}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__histogram_id_int_step_is_invalid&quot;</span>)       
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;id_uuid&quot; then 'id_int_step' is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;id_int_step&quot; : 0, &quot;dist_type&quot; : &quot;id_uuid&quot;}!</span> 
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__id_uuid_id_int_step_is_invalid&quot;</span>)
+    <span class="ruby-comment cmt"># 'dist_type' == &quot;id_mongo_objid&quot; then 'id_int_step' is invalid</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;id_int_step&quot; : 0, &quot;dist_type&quot; : &quot;id_mongo_objid&quot;}!</span> 
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__id_mongo_objid_id_int_step_is_invalid&quot;</span>)    
+
+    <span class="ruby-comment cmt"># nil_ratio</span>
+    <span class="ruby-comment cmt"># 'nil_ratio' invalid type, valid types: Float</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;mean&quot; : 1.5, &quot;std_dev&quot; : 0.25, &quot;dist_type&quot; : &quot;normal&quot;, &quot;nil_ratio&quot; : 1, &quot;nil_value&quot; : -1, &quot;nil_include_field&quot; : false}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__many_nil_ratio_invalid_type&quot;</span>)
+    <span class="ruby-comment cmt"># 'nil_ratio' invalid range, valid range: 0.0 &lt;= x &lt;= 1.0</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;mean&quot; : 1.5, &quot;std_dev&quot; : 0.25, &quot;dist_type&quot; : &quot;normal&quot;, &quot;nil_ratio&quot; : 1.01, &quot;nil_value&quot; : -1, &quot;nil_include_field&quot; : false}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__many_nil_ratio_invalid_range&quot;</span>)
+
+    <span class="ruby-comment cmt"># nil_include_field</span>
+    <span class="ruby-comment cmt"># 'nil_include_field' invalid type, valid types: Boolean</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">%q!{&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;mean&quot; : 1.5, &quot;std_dev&quot; : 0.25, &quot;dist_type&quot; : &quot;normal&quot;, &quot;nil_ratio&quot; : 0.1, &quot;nil_value&quot; : -1, &quot;nil_include_field&quot; : &quot;false&quot;}!</span>    
+    <span class="ruby-identifier">run_invalid_test</span>(<span class="ruby-identifier">field_def</span>, <span class="ruby-value str">&quot;test__many_nil_include_field_invalid_type&quot;</span>)    
+  <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>validate_field_def (BlankValidator)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File blank_validation.rb, line 195</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">validate_field_def</span>(<span class="ruby-identifier">field_def</span>)
+    <span class="ruby-comment cmt"># Copy the field_def</span>
+    <span class="ruby-comment cmt"># Walk this recursive descent parser until successful termination or failed termination</span>
+    <span class="ruby-comment cmt"># Each successful step consumes a key in the copied field_def. </span>
+    <span class="ruby-comment cmt">#  So successful termination occurs when the copied field_def is empty.</span>
+    <span class="ruby-comment cmt">#  Failure occurs when the state machine advances to a state where it cannot continue and it is not empty</span>
+    <span class="ruby-comment cmt"># The grammar defined by the JSON spec for field definitions is context-free</span>
+    <span class="ruby-comment cmt"># The terminals of the grammar are the keys in the field_def hash</span>
+    <span class="ruby-comment cmt"># 'name' is the Start symbol of the grammar</span>
+    <span class="ruby-comment cmt">#</span>
+    <span class="ruby-comment cmt"># * S -&gt; name T</span>
+    <span class="ruby-comment cmt"># * T -&gt; dist_type U V</span>
+    <span class="ruby-comment cmt"># * U -&gt; example_value mean std_dev | example_value min max allow_repeat_values | example_value histogram | histogram | value_set | dictionary | id_int_base | id_int_step | id_int_base id_int_step </span>
+    <span class="ruby-comment cmt"># * V -&gt; nil_ratio | nil_ratio nil_value | nil_ratio nil_include_field | nil_ratio nil_value nil_include_field | EMPTY_SET</span>
+    
+    <span class="ruby-comment cmt"># Violating a cardinal rule here, using exceptions for flow control, but ...</span>
+    <span class="ruby-comment cmt"># We are doing recursive descent, which means failures can occur from an arbitrarily deep call stack, and we want to unwind</span>
+    <span class="ruby-comment cmt">#  all the way up as soon as we hit any failure. The only two ways to do that are exceptions and goto, and exceptions are clean and centralized.</span>
+    <span class="ruby-comment cmt"># Also, the goal is to return errors as a JSON message and not make the client handle excpetions, because the intent of this code is to be</span>
+    <span class="ruby-comment cmt">#  as technology-independent and service-oriented as possible. By returning JSON messages this code is ready to be as service to any client in any language</span>
+    <span class="ruby-comment cmt">#  or to be piped etc.</span>
+    <span class="ruby-keyword kw">begin</span>
+      <span class="ruby-identifier">start</span>(<span class="ruby-identifier">deep_copy</span>(<span class="ruby-identifier">field_def</span>))
+    <span class="ruby-keyword kw">rescue</span> <span class="ruby-constant">BlankValidationException</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">e</span>
+      <span class="ruby-keyword kw">return</span> {<span class="ruby-value str">&quot;return_val&quot;</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-keyword kw">false</span>, <span class="ruby-value str">&quot;err_msg&quot;</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">e</span>.<span class="ruby-identifier">message</span>}
+    <span class="ruby-keyword kw">end</span>
+      
+  <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>generate (BlankGenerator)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File blank_generation.rb, line 52</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">generate</span>(<span class="ruby-identifier">num_records</span>, <span class="ruby-identifier">field_defs</span>, <span class="ruby-identifier">out_format</span>=<span class="ruby-identifier">:json</span>, <span class="ruby-identifier">out_proto</span>=<span class="ruby-keyword kw">nil</span>)
+    <span class="ruby-keyword kw">begin</span>
+      <span class="ruby-identifier">out_format</span> = <span class="ruby-identifier">out_format</span>.<span class="ruby-identifier">to_sym</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">:json</span>
+      <span class="ruby-identifier">require</span> <span class="ruby-value str">'json'</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">out_format</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">:json</span>
+      <span class="ruby-identifier">require</span> <span class="ruby-value str">'csv'</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">out_format</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">:csv</span>
+      <span class="ruby-identifier">validate</span>(<span class="ruby-identifier">num_records</span>, <span class="ruby-identifier">field_defs</span>, <span class="ruby-identifier">out_format</span>)   
+      <span class="ruby-identifier">field_defs</span> = <span class="ruby-identifier">load_field_defs</span>(<span class="ruby-identifier">field_defs</span>)
+
+      <span class="ruby-comment cmt"># Dispatch based on fields included in each field def</span>
+      <span class="ruby-comment cmt"># TODO handle paging etc. for large values of num_records. Rows are independent so this is easy</span>
+      <span class="ruby-identifier">field_data</span> = {}
+      <span class="ruby-identifier">field_defs</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">field_def</span><span class="ruby-operator">|</span>
+        <span class="ruby-identifier">validate_field_def</span>(<span class="ruby-identifier">field_def</span>)        
+        <span class="ruby-comment cmt"># Appends array which is all the data for this field, in order</span>
+        <span class="ruby-comment cmt"># So each array in array out is the pivot of all data for that column for all rows</span>
+        <span class="ruby-identifier">field_data</span>[<span class="ruby-identifier">field_def</span>[<span class="ruby-value str">'name'</span>]] = <span class="ruby-identifier">generate_field_data</span>(<span class="ruby-identifier">num_records</span>, <span class="ruby-identifier">field_def</span>[<span class="ruby-value str">'dist_type'</span>], <span class="ruby-identifier">field_def</span>)
+      <span class="ruby-keyword kw">end</span>
+    
+      <span class="ruby-comment cmt"># Now loop over out and take each slice, value at that row index for that field, to construct and append each record to output</span>
+      <span class="ruby-identifier">out</span> = []
+      <span class="ruby-identifier">num_records</span>.<span class="ruby-identifier">times</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">record_idx</span><span class="ruby-operator">|</span>
+        <span class="ruby-identifier">record</span> = {} <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">out_format</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">:json</span>
+        <span class="ruby-identifier">record</span> = [] <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">out_format</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">:csv</span>
+        <span class="ruby-identifier">field_data</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">field</span>, <span class="ruby-identifier">data</span><span class="ruby-operator">|</span>
+          <span class="ruby-identifier">record_data</span> = <span class="ruby-identifier">data</span>[<span class="ruby-identifier">record_idx</span>]      
+          <span class="ruby-identifier">record</span>[<span class="ruby-identifier">field</span>] = <span class="ruby-identifier">record_data</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">out_format</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">:json</span>
+          <span class="ruby-identifier">record</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">record_data</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">out_format</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">:csv</span>
+        <span class="ruby-keyword kw">end</span> 
+        <span class="ruby-identifier">out</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">record</span>
+      <span class="ruby-keyword kw">end</span>
+      
+      <span class="ruby-comment cmt"># Convert array of hashes (JSON output) or array of arrays (CSV output) to string and return</span>
+      <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">out_format</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">:json</span>
+        <span class="ruby-identifier">out</span> = <span class="ruby-identifier">out</span>.<span class="ruby-identifier">to_json</span>
+      <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">out_format</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">:csv</span>
+        <span class="ruby-identifier">out</span> = <span class="ruby-constant">CSV</span>.<span class="ruby-identifier">generate</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">csv</span><span class="ruby-operator">|</span>
+          <span class="ruby-identifier">out</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">rec</span><span class="ruby-operator">|</span>
+            <span class="ruby-identifier">csv</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">rec</span>
+          <span class="ruby-keyword kw">end</span>
+        <span class="ruby-keyword kw">end</span>
+      <span class="ruby-keyword kw">end</span>
+      
+      <span class="ruby-identifier">out</span>
+    <span class="ruby-keyword kw">rescue</span> <span class="ruby-constant">Exception</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">e</span>
+      <span class="ruby-identifier">puts</span> <span class="ruby-identifier">e</span>
+    <span class="ruby-keyword kw">end</span>
+  <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

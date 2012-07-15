@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>generate_by_histogram (BlankGenerator)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File blank_generation.rb, line 174</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">generate_by_histogram</span>(<span class="ruby-identifier">num_records</span>, <span class="ruby-identifier">histogram</span>, <span class="ruby-identifier">example_value</span>=<span class="ruby-keyword kw">nil</span>)
+    <span class="ruby-comment cmt"># Normalize histogram. Iterate over buckets, sum counts, set each buckets count to count/total.to_f. This</span>
+    <span class="ruby-comment cmt">#  is probability for a random variable to land in that bucket.</span>
+    <span class="ruby-identifier">total</span> = (<span class="ruby-identifier">histogram</span>.<span class="ruby-identifier">inject</span>(<span class="ruby-value">0</span>) <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">total</span>, <span class="ruby-identifier">hist_entry</span><span class="ruby-operator">|</span>     
+      <span class="ruby-identifier">total</span> <span class="ruby-operator">+=</span> <span class="ruby-identifier">hist_entry</span>[<span class="ruby-value str">&quot;count&quot;</span>]
+      <span class="ruby-identifier">total</span>
+    <span class="ruby-keyword kw">end</span>).<span class="ruby-identifier">to_f</span>
+    
+    <span class="ruby-comment cmt"># Project this share into a range 0..999</span>
+    <span class="ruby-comment cmt"># Assign the histogram to each index in the range in its share. So then we can just generate random</span>
+    <span class="ruby-comment cmt">#  variables that index to the correct histogram bucket object and generate values using the histogram</span>
+    <span class="ruby-comment cmt">#  object without additional search, iteration, etc.    </span>
+    <span class="ruby-identifier">hist_projection</span> = []
+    <span class="ruby-identifier">histogram</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">hist_entry</span><span class="ruby-operator">|</span>      
+      <span class="ruby-comment cmt"># So now each bucket in the histogram hash has an element that is it's share in the range 0.0..1.0</span>
+      <span class="ruby-identifier">share</span> = (<span class="ruby-identifier">hist_entry</span>[<span class="ruby-value str">&quot;count&quot;</span>].<span class="ruby-identifier">to_f</span> <span class="ruby-operator">/</span> <span class="ruby-identifier">total</span>).<span class="ruby-identifier">round</span> <span class="ruby-operator">*</span> <span class="ruby-value">1000</span>
+      <span class="ruby-value">1</span>.<span class="ruby-identifier">upto</span>(<span class="ruby-identifier">share</span>) <span class="ruby-keyword kw">do</span> 
+        <span class="ruby-identifier">hist_projection</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">hist_entry</span>
+      <span class="ruby-keyword kw">end</span>
+    <span class="ruby-keyword kw">end</span>
+    
+    <span class="ruby-comment cmt"># Test for type of histogram entries</span>
+    <span class="ruby-identifier">test_hist_entry</span> = <span class="ruby-identifier">histogram</span>[<span class="ruby-value">0</span>]
+    <span class="ruby-identifier">hist_type</span> = <span class="ruby-value str">&quot;&quot;</span>
+    <span class="ruby-identifier">num_type</span> = <span class="ruby-keyword kw">nil</span>
+    <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">test_hist_entry</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-value str">&quot;min&quot;</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">test_hist_entry</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-value str">&quot;max&quot;</span>)
+      <span class="ruby-identifier">hist_type</span> = <span class="ruby-value str">&quot;histogram&quot;</span>
+      <span class="ruby-identifier">num_type</span> = (<span class="ruby-identifier">test_hist_entry</span>[<span class="ruby-value str">&quot;min&quot;</span>].<span class="ruby-identifier">class</span> <span class="ruby-operator">==</span> <span class="ruby-constant">Fixnum</span> <span class="ruby-value">? </span><span class="ruby-constant">Fixnum</span> <span class="ruby-operator">:</span> <span class="ruby-constant">Float</span>)
+    <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">test_hist_entry</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-value str">&quot;value_set&quot;</span>)
+      <span class="ruby-identifier">hist_type</span> = <span class="ruby-value str">&quot;value_set&quot;</span>
+    <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">test_hist_entry</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-value str">&quot;dictionary&quot;</span>)
+      <span class="ruby-identifier">hist_type</span> = <span class="ruby-value str">&quot;dictionary&quot;</span>
+    <span class="ruby-keyword kw">end</span>
+    
+    <span class="ruby-comment cmt"># Branch on type of histogram entries and generate values</span>
+    <span class="ruby-identifier">dist</span> = []
+    <span class="ruby-comment cmt"># Hist has min and mix, pick a random value within that range.</span>
+    <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">hist_type</span> <span class="ruby-operator">==</span> <span class="ruby-value str">&quot;histogram&quot;</span>
+      <span class="ruby-comment cmt"># Iterate num_records times and generate values using the histogram objects passed in</span>
+      <span class="ruby-value">1</span>.<span class="ruby-identifier">upto</span>(<span class="ruby-identifier">num_records</span>) <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">i</span><span class="ruby-operator">|</span>   
+        <span class="ruby-identifier">hist_entry</span> = <span class="ruby-identifier">hist_projection</span>[(<span class="ruby-identifier">rand</span> <span class="ruby-operator">*</span> <span class="ruby-value">1000</span>).<span class="ruby-identifier">floor</span>]            
+        <span class="ruby-identifier">dist</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">hist_entry</span>[<span class="ruby-value str">&quot;min&quot;</span>] <span class="ruby-operator">+</span> (<span class="ruby-identifier">rand</span> <span class="ruby-operator">*</span> (<span class="ruby-identifier">hist_entry</span>[<span class="ruby-value str">&quot;max&quot;</span>] <span class="ruby-operator">-</span> <span class="ruby-identifier">hist_entry</span>[<span class="ruby-value str">&quot;min&quot;</span>]))
+      <span class="ruby-keyword kw">end</span>
+    <span class="ruby-comment cmt"># Hist has a value set, pick a value from set at a random index</span>
+    <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">hist_type</span> <span class="ruby-operator">==</span> <span class="ruby-value str">&quot;value_set&quot;</span>
+      <span class="ruby-value">1</span>.<span class="ruby-identifier">upto</span>(<span class="ruby-identifier">num_records</span>) <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">i</span><span class="ruby-operator">|</span>
+        <span class="ruby-identifier">hist_entry</span> = <span class="ruby-identifier">hist_projection</span>[(<span class="ruby-identifier">rand</span> <span class="ruby-operator">*</span> <span class="ruby-value">1000</span>).<span class="ruby-identifier">floor</span>]
+        <span class="ruby-identifier">v</span> = <span class="ruby-identifier">hist_entry</span>[<span class="ruby-value str">&quot;value_set&quot;</span>]
+        <span class="ruby-identifier">idx</span> = (<span class="ruby-identifier">rand</span> <span class="ruby-operator">*</span> <span class="ruby-identifier">v</span>.<span class="ruby-identifier">length</span>).<span class="ruby-identifier">floor</span>
+        <span class="ruby-identifier">dist</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">v</span>[<span class="ruby-identifier">idx</span>]
+      <span class="ruby-keyword kw">end</span>
+    <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">hist_type</span> <span class="ruby-operator">==</span> <span class="ruby-value str">&quot;dictionary&quot;</span>
+      <span class="ruby-comment cmt"># Store entries already read in from file so we don't read in from file more than once      </span>
+      <span class="ruby-identifier">cached_dict_entries</span> = {}
+      <span class="ruby-value">1</span>.<span class="ruby-identifier">upto</span>(<span class="ruby-identifier">num_records</span>) <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">i</span><span class="ruby-operator">|</span>
+        <span class="ruby-identifier">hist_entry</span> = <span class="ruby-identifier">hist_projection</span>[(<span class="ruby-identifier">rand</span> <span class="ruby-operator">*</span> <span class="ruby-value">1000</span>).<span class="ruby-identifier">floor</span>]
+        <span class="ruby-comment cmt"># Test/cache for strings from the dictionary for this histogram entry</span>
+        <span class="ruby-identifier">dict</span> = <span class="ruby-identifier">hist_entry</span>[<span class="ruby-value str">&quot;dictionary&quot;</span>]
+        <span class="ruby-keyword kw">if</span> <span class="ruby-keyword kw">not</span> <span class="ruby-identifier">cached_dict_entries</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">dict</span>)
+          <span class="ruby-constant">File</span>.<span class="ruby-identifier">open</span>(<span class="ruby-identifier">dict</span>) {<span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span> <span class="ruby-identifier">cached_dict_entries</span>[<span class="ruby-identifier">dict</span>] = <span class="ruby-identifier">f</span>.<span class="ruby-identifier">readlines</span>.<span class="ruby-identifier">map!</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">s</span><span class="ruby-operator">|</span> <span class="ruby-identifier">s</span>.<span class="ruby-identifier">strip</span>}}          
+        <span class="ruby-keyword kw">end</span>
+        <span class="ruby-identifier">d</span> = <span class="ruby-identifier">cached_dict_entries</span>[<span class="ruby-identifier">dict</span>]
+        <span class="ruby-comment cmt"># Pull a word from the array of strings from dictionary created in test/cache code above</span>
+        <span class="ruby-identifier">idx</span> = (<span class="ruby-identifier">rand</span> <span class="ruby-operator">*</span> <span class="ruby-identifier">d</span>.<span class="ruby-identifier">length</span>).<span class="ruby-identifier">floor</span>
+        <span class="ruby-identifier">dist</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">d</span>[<span class="ruby-identifier">idx</span>]
+      <span class="ruby-keyword kw">end</span>
+    <span class="ruby-keyword kw">end</span>
+
+    <span class="ruby-comment cmt"># Check once if we need need to convert values and post-process only if necessary</span>
+    <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">hist_type</span> <span class="ruby-operator">==</span> <span class="ruby-value str">&quot;histogram&quot;</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">num_type</span> <span class="ruby-operator">==</span> <span class="ruby-constant">Fixnum</span>
+       <span class="ruby-identifier">dist</span>.<span class="ruby-identifier">map!</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">x</span><span class="ruby-operator">|</span> <span class="ruby-identifier">x</span>.<span class="ruby-identifier">floor</span>}
+    <span class="ruby-keyword kw">end</span>
+    
+    <span class="ruby-identifier">dist</span>
+  <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

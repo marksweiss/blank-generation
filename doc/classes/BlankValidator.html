@@ -1,0 +1,725 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Module: BlankValidator</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href=".././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Module</strong></td>
+          <td class="class-name-in-header">BlankValidator</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../files/blank_validation_rb.html">
+                blank_validation.rb
+                </a>
+        <br />
+            </td>
+        </tr>
+
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <table>
+<tr><td valign="top">Author:</td><td>Mark S. Weiss (<a
+href="http://github.com/marksweiss">github.com/marksweiss</a>)
+
+</td></tr>
+<tr><td valign="top">Copyright:</td><td>Copyright (c) 2012 Mark S. Weiss
+
+</td></tr>
+<tr><td valign="top">License:</td><td>MIT
+
+</td></tr>
+</table>
+<h2>Overview</h2>
+<p>
+Validates that JSON field definitions are valid combinations of keys, i.e.
+valid syntax, and that the values for each included key are valid values
+for that type of key, e.g. that the value for a &#8216;mean&#8217; key is
+either int or float.
+</p>
+<p>
+Here is an example of a field definition: <tt>{&quot;name&quot; :
+&quot;name&quot;, &quot;example_value&quot; : 1, &quot;mean&quot; : 1.5,
+&quot;std_dev&quot; : 0.25, &quot;dist_type&quot; :
+&quot;normal&quot;}</tt>
+</p>
+<hr size="1"></hr><h2>Field Definition Grammar</h2>
+<p>
+Here is the complete BNF grammar for the keys of the key-value pairs in
+field definitions:
+</p>
+<ul>
+<li>S -&gt; name T
+
+</li>
+<li>T -&gt; dist_type U V
+
+</li>
+<li>U -&gt; example_value mean std_dev | example_value min max
+allow_repeat_values | example_value histogram | histogram | value_set |
+dictionary | id_int_base | id_int_step | id_int_base id_int_step
+
+</li>
+<li>V -&gt; nil_ratio | nil_ratio nil_value | nil_ratio nil_include_field |
+nil_ratio nil_value nil_include_field | EMPTY_SET
+
+</li>
+</ul>
+<hr size="1"></hr><h2>Field Definition Specification</h2>
+<p>
+<tt>name</tt>
+</p>
+<ul>
+<li>String
+
+</li>
+<li>Required
+
+</li>
+<li>The name of the field. Must be a string one or more characters in length .
+
+</li>
+</ul>
+<p>
+<tt>dist_type</tt>
+</p>
+<ul>
+<li>String with a value in:
+&quot;normal&quot;|&quot;random&quot;|&quot;histogram&quot;|&quot;value_set&quot;|&quot;id_int&quot;|&quot;id_uuid&quot;|&quot;id_mongo_objid&quot;
+
+</li>
+<li>Required
+
+</li>
+<li>The type of distribution to generate:
+
+</li>
+</ul>
+<ol>
+<li>Normal distribution will generate values using the average and standard
+deviation provided.
+
+</li>
+<li>Random will generate a random distribution of values within the min and max
+bounds provided and honoring the allow_repeat_values argument provided. If
+the <tt>example_value</tt> provided with the field definition is a Fixnum,
+then Random can generate a distribution of Fixnums in the range <tt>min
+&lt;= x &lt; max</tt> where <tt>min</tt> and <tt>max</tt> can be any valid
+Fixnum values. If the <tt>example_value</tt> provided with the field
+definition is a Float, then Random will generate a distribution of Floats
+in the range <tt>0.0 &lt;= x &lt; 1.0</tt>.
+
+</li>
+<li>Histogram will generate a distribution conforming to the histogram
+provided.
+
+</li>
+<li>Value set will generate a random distribution drawing from the fixed set of
+values provided.
+
+</li>
+<li>Id_int will generate monotonically increasing integer id values for each
+record, using the id_int_step provided or incremening by 1 if no step is
+provided.
+
+</li>
+<li>Id_uuid will generate a UUID id value for each record.
+
+</li>
+<li>Id_mongo_objid will generate a MongoDB ObjectId id for each record.
+
+</li>
+</ol>
+<p>
+<tt>example_value</tt>
+</p>
+<ul>
+<li>Fixnum|Float
+
+</li>
+<li>Required if <tt>dist_type == &quot;normal&quot;</tt> or <tt>dist_type ==
+&quot;random&quot;</tt> or <tt>dist_type == &quot;histogram&quot;</tt> and
+there is a <tt>histogram</tt> element supplying bucket values (instead of a
+<tt>value_set</tt> or <tt>dictionary</tt>). Invalid otherwise.
+
+</li>
+<li>A value provided as an example of the type of data stored in the field.
+Used to disambiguate definitions of <tt>&quot;normal&quot;</tt> and
+<tt>&quot;random&quot;</tt> distributions, which can take arguments
+describing the distribution of one type and have values of another. For
+example, you might specifiy <tt>mean</tt> and <tt>std_dev</tt> as floats
+but want to produce a distribution of integers.
+
+</li>
+</ul>
+<p>
+<tt>mean</tt>
+</p>
+<ul>
+<li>Float
+
+</li>
+<li>Required if <tt>dist_type == &quot;normal&quot;</tt>. Invalid otherwise.
+
+</li>
+<li>The average value over all records for data stored in the field. For
+Strings, this is the average length.
+
+</li>
+</ul>
+<p>
+<tt>std_dev</tt>
+</p>
+<ul>
+<li>Float
+
+</li>
+<li>Required if <tt>dist_type == &quot;normal&quot;</tt>. Invalid otherwise.
+
+</li>
+<li>The standard deviation from the average over all records for data stored in
+the field. For Strings, this is the standard deviation of the lengths of
+all strings in the distribution.
+
+</li>
+</ul>
+<p>
+<tt>min</tt>
+</p>
+<ul>
+<li>Fixnum
+
+</li>
+<li>Required if <tt>dist_type = &quot;random&quot;</tt>. Invalid otherwise.
+
+</li>
+<li>The minimum value allowed for a random distribution.
+
+</li>
+<li>Valid range of values:
+
+</li>
+</ul>
+<ol>
+<li>If <tt>example_value</tt> is a Fixnum, <tt>min</tt> can be any valid Fixnum
+value
+
+</li>
+<li>If <tt>example_value</tt> is a Float, <tt>0.0 &lt;= min &lt;= 1.0</tt>
+
+</li>
+</ol>
+<p>
+<tt>max</tt>
+</p>
+<ul>
+<li>Fixnum
+
+</li>
+<li>Required if <tt>dist_type = &quot;random&quot;</tt>. Invalid otherwise.
+
+</li>
+<li>The maxium value allowed for a random distribution.
+
+</li>
+<li>Valid range of values:
+
+</li>
+</ul>
+<ol>
+<li>If <tt>example_value</tt> is a Fixnum, <tt>max</tt> can be any valid Fixnum
+value
+
+</li>
+<li>If <tt>example_value</tt> is a Float, <tt>0.0 &lt;= max &lt;= 1.0</tt>
+
+</li>
+</ol>
+<p>
+<tt>allow_repeat_values</tt>
+</p>
+<ul>
+<li>Boolean
+
+</li>
+<li>Required if <tt>dist_type == &quot;random&quot;</tt>. Invalid otherwise.
+
+</li>
+<li>Indicates whether values can repeat or must be unique in a random
+distribution.
+
+</li>
+</ul>
+<p>
+<tt>dictionary</tt>
+</p>
+<ul>
+<li>String
+
+</li>
+<li>Optional if <tt>dist_type == &quot;value_set&quot;</tt> or
+<tt>&quot;histogram&quot;</tt>. Invalid otherwise.
+
+</li>
+<li>Path to an external dictionary of words or phrases (one per line) to use
+for generating string data:
+
+</li>
+</ul>
+<ol>
+<li>If provided as the value for the &#8216;value_set&#8217; elemen t when
+&#8216;dist_type&#8217; == &quot;value_set&quot;, then a random
+distribution from the dictionary will be generated.
+
+</li>
+<li>If provided as the value for elements in a &#8216;histogram&#8217; when
+&#8216;dist_type&#8217; == &quot;histogram&quot;, then the dictionary
+provides the set of values for the histogram bucket.
+
+</li>
+</ol>
+<p>
+<tt>histogram</tt>
+</p>
+<ul>
+<li>JSON Array of JSON objects
+
+</li>
+<li>Required if <tt>dist_type == &quot;histogram&quot;</tt> unless there is a
+<tt>dictionary</tt> or <tt>value_set</tt> present. Invalid otherwise.
+
+</li>
+<li>A JSON object describing a histogram distribution, following this format:
+<tt>[{min : Fixnum|Float, max : : Fixnum|Float, count : Fixnum},
+&#8230;]</tt>
+
+</li>
+</ul>
+<p>
+<tt>value_set</tt>
+</p>
+<ul>
+<li>JSON Array
+
+</li>
+<li>Required if <tt>dist_type == &quot;value_set&quot;</tt> unless there is a
+<tt>dictionary</tt> element present. Optional if <tt>dist_type ==
+&quot;histogram&quot;</tt>. Invalid otherwise.
+
+</li>
+<li>An array of values (which can be heterogenous) to draw from to randomly
+generate a distribution.
+
+</li>
+</ul>
+<p>
+<tt>id_int_base</tt>
+</p>
+<ul>
+<li>Fixnum
+
+</li>
+<li>Optional if <tt>dist_type == &quot;id_int&quot;</tt>. Invalid otherwise.
+
+</li>
+<li>The starting value from which to generate monotonically incereasing id
+values. If this key is not specified then a default of 1 is used.
+
+</li>
+</ul>
+<p>
+<tt>id_int_step</tt>
+</p>
+<ul>
+<li>Fixnum
+
+</li>
+<li>Optional if <tt>dist_type == &quot;id_int&quot;</tt>. Invalid otherwise.
+
+</li>
+<li>The amount to increment each id value generated. If this key is not
+specified then a default of 1 is used.
+
+</li>
+</ul>
+<p>
+<tt>nil_ratio</tt>
+</p>
+<ul>
+<li>Float in the range (0.0 &lt;= x &lt;= 1.0).
+
+</li>
+<li>Optional with default of 0.0 except explicitly not allowed if <tt>dist_type
+== &quot;id_*&quot;</tt>, <tt>dist_type == &quot;histogram&quot;</tt>.
+
+</li>
+<li>NOTE: To support nil values in <tt>histogram</tt> distributions, include a
+&quot;null bucket&quot; element with a positive count &#8212; so, for a
+histogram with the sum of its counts == 100 (including the null bucket),
+including this bucket means each element will have a 50% chance of being
+null: <tt>{&quot;min&quot; : null, &quot;max&quot; : null,
+&quot;count&quot; : 50}</tt>
+
+</li>
+<li>The ratio of records that should have a nil value. Here &#8216;nil&#8217;
+is used loosely and means either the default nil value (no value in CSV
+output and JSON null in JSON output), or the value provided in the optional
+<tt>nil_value</tt> field.
+
+</li>
+</ul>
+<p>
+<tt>nil_value</tt>
+</p>
+<ul>
+<li>ANY
+
+</li>
+<li>Optional except explicitly not allowed if &quot;<tt>dist_type ==
+&quot;id_*&quot;</tt>, <tt>dist_type == &quot;histogram&quot;</tt>.
+
+</li>
+<li>NOTE: To support nil values in <tt>histogram</tt> distributions, include a
+&quot;null bucket&quot; element with a positive count &#8212; so, for a
+histogram with the sum of its counts == 100 (including the null bucket),
+including this bucket means each element will have a 50% chance of being
+null: <tt>{&quot;min&quot; : null, &quot;max&quot; : null,
+&quot;count&quot; : 50}</tt>
+
+</li>
+<li>The value of any type desired that should be emitted for records assigned a
+&#8216;nil&#8217; value for this field. For example, to explicitly output
+empty strings in output, include a <tt>{nil_value : &quot;&quot;}</tt> hash
+element in the field definition.
+
+</li>
+</ul>
+<p>
+<tt>nil_include_field</tt>
+</p>
+<ul>
+<li>Boolean
+
+</li>
+<li>Optional with default of true but invalid if <tt>nil_ratio</tt> is not also
+present and set to a value &gt; 0.0. Not allowed if &quot;<tt>dist_type ==
+&quot;id_*&quot;</tt>, <tt>dist_type == &quot;histogram&quot;</tt>.
+
+</li>
+<li>NOTE: To support nil values in <tt>histogram</tt> distributions, include a
+&quot;null bucket&quot; element with a positive count &#8212; so, for a
+histogram with the sum of its counts == 100 (including the null bucket),
+including this bucket means each element will have a 50% chance of being
+null: <tt>{&quot;min&quot; : null, &quot;max&quot; : null,
+&quot;count&quot; : 50}</tt>
+
+</li>
+<li>A flag that toggles whether the field is included if it is nil. Allows
+generation of data with uniform columns and nils (for example for CSVs or
+data intended to be used in relational DBs) and generation of ragged
+documents only including fields with values (for example for JSON data
+intended to be used in document DBs)
+
+</li>
+</ul>
+<hr size="1"></hr><h2>Examples of Each Valid Field Definition</h2>
+<h3>Normal</h3>
+<p>
+Normal distribution, no nil_ratio specified:
+</p>
+<pre>
+ {&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;mean&quot; : 1.5, &quot;std_dev&quot; : 0.25, &quot;dist_type&quot; : &quot;normal&quot;}
+</pre>
+<p>
+Normal distribution, nil_ratio specified:
+</p>
+<pre>
+ {&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;mean&quot; : 1.5, &quot;std_dev&quot; : 0.25, &quot;dist_type&quot; : &quot;normal&quot;, &quot;nil_ratio&quot; : 0.1}
+</pre>
+<p>
+Normal distribution, nil_ratio and nil_include_field, specified:
+</p>
+<pre>
+ {&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;mean&quot; : 1.5, &quot;std_dev&quot; : 0.25, &quot;dist_type&quot; : &quot;normal&quot;, &quot;nil_ratio&quot; : 0.1, &quot;nil_include_field&quot; : false}
+</pre>
+<p>
+Normal distribution, nil_ratio and nil_value specified:
+</p>
+<pre>
+ {&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;mean&quot; : 1.5, &quot;std_dev&quot; : 0.25, &quot;dist_type&quot; : &quot;normal&quot;, &quot;nil_ratio&quot; : 0.1, &quot;nil_value&quot; : -1}
+</pre>
+<p>
+Normal distribution, nil_ratio, nil_value and nil_include_field specified:
+</p>
+<pre>
+ {&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;mean&quot; : 1.5, &quot;std_dev&quot; : 0.25, &quot;dist_type&quot; : &quot;normal&quot;, &quot;nil_ratio&quot; : 0.1, &quot;nil_value&quot; : -1, &quot;nil_include_field&quot; : false}
+</pre>
+<h3>Random</h3>
+<p>
+Random distribution, no nil_ratio specified:
+</p>
+<pre>
+ {&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;min&quot; : 1, &quot;max&quot; : 100000, &quot;allow_repeat_values&quot; : true, &quot;dist_type&quot; : &quot;random&quot;}
+</pre>
+<p>
+Random distribution, nil_ratio specified:
+</p>
+<pre>
+ {&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;min&quot; : 1, &quot;max&quot; : 100000, &quot;allow_repeat_values&quot; : true, &quot;dist_type&quot; : &quot;random&quot;, &quot;nil_ratio&quot; : 0.1}
+</pre>
+<p>
+Random distribution, nil_ratio and nil_include_field specified:
+</p>
+<pre>
+ {&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;min&quot; : 1, &quot;max&quot; : 100000, &quot;allow_repeat_values&quot; : true, &quot;dist_type&quot; : &quot;random&quot;, &quot;nil_ratio&quot; : 0.1, &quot;nil_include_field&quot; : false}
+</pre>
+<p>
+Random distribution, nil_ratio and nil_value specified:
+</p>
+<pre>
+ {&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;min&quot; : 1, &quot;max&quot; : 100000, &quot;allow_repeat_values&quot; : true, &quot;dist_type&quot; : &quot;random&quot;, &quot;nil_ratio&quot; : 0.1, &quot;nil_value&quot; : -1}
+</pre>
+<p>
+Random distribution, nil_ratio, nil_value and nil_include_field specified:
+</p>
+<pre>
+ {&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;min&quot; : 1, &quot;max&quot; : 100000, &quot;allow_repeat_values&quot; : true, &quot;dist_type&quot; : &quot;random&quot;, &quot;nil_ratio&quot; : 0.1, &quot;nil_value&quot; : -1, &quot;nil_include_field&quot; : false}
+</pre>
+<h3>Histogram</h3>
+<p>
+Histogram distribution for numeric data:
+</p>
+<pre>
+ {&quot;name&quot; : &quot;name&quot;, &quot;example_value&quot; : 1, &quot;dist_type&quot; : &quot;histogram&quot;, &quot;histogram&quot; : [{&quot;min&quot; : 0, &quot;max&quot; : 1123, count: 50}, {&quot;min&quot; : 1124, &quot;max&quot; : 18532, count: 53}]}
+</pre>
+<p>
+Histogram distribution for String data using a value_set:
+</p>
+<pre>
+ {&quot;name&quot; : &quot;name&quot;, &quot;dist_type&quot; : &quot;histogram&quot;, &quot;histogram&quot; : [{&quot;value_set&quot; : [&quot;a&quot;, &quot;b&quot;, &quot;c&quot;], count: 50}, {&quot;value_set&quot; : [&quot;d&quot;, &quot;e&quot;, &quot;f&quot;], count: 53}]}
+</pre>
+<p>
+Histogram distribution for string data using a dictionary:
+</p>
+<pre>
+ {&quot;name&quot; : &quot;name&quot;, &quot;dist_type&quot; : &quot;histogram&quot;, &quot;histogram&quot; : [{&quot;dictionary&quot; : &quot;/PATH_TO_DICT_1&quot;, count: 50}, {&quot;dictionary&quot; : &quot;/PATH_TO_DICT_2&quot;, count: 53}]}
+</pre>
+<h3>Value Set</h3>
+<p>
+Value Set distribution, no nil_ratio specified:
+</p>
+<pre>
+ {&quot;name&quot; : &quot;name&quot;, &quot;dist_type&quot; : &quot;value_set&quot;, &quot;value_set&quot; : [1, 2, 3, 5, 8, 13, 21]}
+</pre>
+<p>
+Value Set distribution, nil_ratio specified:
+</p>
+<pre>
+ {&quot;name&quot; : &quot;name&quot;, &quot;dist_type&quot; : &quot;value_set&quot;, &quot;value_set&quot; : [1, 2, 3, 5, 8, 13, 21], &quot;nil_ratio&quot; : 0.1}
+</pre>
+<p>
+Value Set distribution, nil_ratio and nil_include_field specified:
+</p>
+<pre>
+ {&quot;name&quot; : &quot;name&quot;, &quot;dist_type&quot; : &quot;value_set&quot;, &quot;value_set&quot; : [1, 2, 3, 5, 8, 13, 21], &quot;nil_ratio&quot; : 0.1, &quot;nil_include_field&quot; : true}
+</pre>
+<p>
+Value Set distribution, nil_ratio and nil_value specified:
+</p>
+<pre>
+ {&quot;name&quot; : &quot;name&quot;, &quot;dist_type&quot; : &quot;value_set&quot;, &quot;value_set&quot; : [1, 2, 3, 5, 8, 13, 21], &quot;nil_ratio&quot; : 0.1, &quot;nil_value&quot; : -1}
+</pre>
+<p>
+Value Set distribution, nil_ratio, nil_value and nil_include_field
+specified:
+</p>
+<pre>
+ {&quot;name&quot; : &quot;name&quot;, &quot;dist_type&quot; : &quot;value_set&quot;, &quot;value_set&quot; : [1, 2, 3, 5, 8, 13, 21], &quot;nil_ratio&quot; : 0.1, &quot;nil_value&quot; : -1, &quot;nil_include_field&quot; : true}
+</pre>
+<p>
+Value Set distribution, String data, with Dictionary, no nil_ratio
+specified:
+</p>
+<pre>
+ {&quot;name&quot; : &quot;name&quot;, &quot;dist_type&quot; : &quot;value_set&quot;, &quot;dictionary&quot; : &quot;PATH_TO_DICT_1&quot;}}
+</pre>
+<p>
+Value Set distribution, String data, with Dictionary, nil_ratio specified:
+</p>
+<pre>
+ {&quot;name&quot; : &quot;name&quot;, &quot;dist_type&quot; : &quot;value_set&quot;, &quot;dictionary&quot; : &quot;PATH_TO_DICT_1&quot;, &quot;nil_ratio&quot; : 0.1}
+</pre>
+<p>
+Value Set distribution, String data, with Dictionary, nil_ratio and
+nil_include_field specified:
+</p>
+<pre>
+ {&quot;name&quot; : &quot;name&quot;, &quot;dist_type&quot; : &quot;value_set&quot;, &quot;dictionary&quot; : &quot;PATH_TO_DICT_1&quot;, &quot;nil_ratio&quot; : 0.1, &quot;nil_include_field&quot; : true}
+</pre>
+<p>
+Value Set distribution, String data, with Dictionary, nil_ratio and
+nil_value specified:
+</p>
+<pre>
+ {&quot;name&quot; : &quot;name&quot;, &quot;dist_type&quot; : &quot;value_set&quot;, &quot;dictionary&quot; : &quot;PATH_TO_DICT_1&quot;, &quot;nil_ratio&quot; : 0.1, &quot;nil_value&quot; : -1}
+</pre>
+<p>
+Value Set distribution,String data, with Dictionary, nil_ratio, nil_value
+and nil_include_field specified:
+</p>
+<pre>
+ {&quot;name&quot; : &quot;name&quot;, &quot;dist_type&quot; : &quot;value_set&quot;, &quot;dictionary&quot; : &quot;PATH_TO_DICT_1&quot;, &quot;nil_ratio&quot; : 0.1, &quot;nil_value&quot; : -1, &quot;nil_include_field&quot; : true}
+</pre>
+<h3>Id_Int</h3>
+<p>
+Id_int distribution, no id_int_base or id_int_step specified:
+</p>
+<pre>
+ {&quot;name&quot; : &quot;name&quot;, &quot;dist_type&quot; : &quot;id_int&quot;}
+</pre>
+<p>
+Id_int distribution, id_int_base specified but no id_int_step specified:
+</p>
+<pre>
+ {&quot;name&quot; : &quot;name&quot;, &quot;dist_type&quot; : &quot;id_int&quot;, &quot;id_int_base&quot; : 1000000}
+</pre>
+<p>
+Id_int distribution, id_int_base specified and id_int_step specified:
+</p>
+<pre>
+ {&quot;name&quot; : &quot;name&quot;, &quot;dist_type&quot; : &quot;id_int&quot;, &quot;id_int_base&quot; : 1000000, &quot;id_int_step&quot; : 20}
+</pre>
+<h3>Id_uuid distribution:</h3>
+<pre>
+ {&quot;name&quot; : &quot;name&quot;, &quot;dist_type&quot; : &quot;id_uuid&quot;}
+</pre>
+<h3>Id_mongo_objid distribution:</h3>
+<pre>
+ {&quot;name&quot; : &quot;name&quot;, &quot;dist_type&quot; : &quot;id_mongo_objid&quot;}
+</pre>
+
+    </div>
+
+
+   </div>
+
+    <div id="method-list">
+      <h3 class="section-bar">Methods</h3>
+
+      <div class="name-list">
+      <a href="#M000031">validate_field_def</a>&nbsp;&nbsp;
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+    <div id="class-list">
+      <h3 class="section-bar">Classes and Modules</h3>
+
+      Class <a href="BlankValidator/BlankValidationException.html" class="link">BlankValidator::BlankValidationException</a><br />
+
+    </div>
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+    <div id="methods">
+      <h3 class="section-bar">Public Instance methods</h3>
+
+      <div id="method-M000031" class="method-detail">
+        <a name="M000031"></a>
+
+        <div class="method-heading">
+          <a href="BlankValidator.src/M000031.html" target="Code" class="method-signature"
+            onclick="popupCode('BlankValidator.src/M000031.html');return false;">
+          <span class="method-name">validate_field_def</span><span class="method-args">(field_def)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Validate a field definition syntax (i.e. - it&#8216;s set of keys), and the
+value for each key. <tt>field_def</tt> - a JSON field defintion (see the
+full specification in the documentation for this module <tt><a
+href="BlankValidator.html">BlankValidator</a></tt>)
+</p>
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

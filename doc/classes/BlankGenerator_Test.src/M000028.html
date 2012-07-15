@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>test__generate_by_id_mongo_objid (BlankGenerator_Test)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File test/test_blank_generation.rb, line 107</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">test__generate_by_id_mongo_objid</span>
+    <span class="ruby-identifier">require</span> <span class="ruby-value str">'mongo'</span>
+    <span class="ruby-identifier">dist</span> = <span class="ruby-ivar">@g</span>.<span class="ruby-identifier">generate_by_id_mongo_objid</span>(<span class="ruby-value">3</span>)
+    <span class="ruby-identifier">assert</span>(<span class="ruby-identifier">dist</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">==</span> <span class="ruby-value">3</span>, <span class="ruby-node">&quot;generate_by_id_mongo_objid failed. Expected 3 records returned but returned #{dist.length}&quot;</span>)
+    <span class="ruby-identifier">dist</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">id</span><span class="ruby-operator">|</span>
+      <span class="ruby-identifier">assert</span>(<span class="ruby-constant">BSON</span><span class="ruby-operator">::</span><span class="ruby-constant">ObjectId</span>.<span class="ruby-identifier">legal?</span>(<span class="ruby-identifier">id</span>.<span class="ruby-identifier">to_s</span>), <span class="ruby-node">&quot;generate_by_id_mongo_objid failed. dist returned illegal ObjectId value #{id}&quot;</span>)      
+      <span class="ruby-comment cmt"># Based on the source code in the documentation, parse will raise an exception if it can't parse its argument</span>
+      <span class="ruby-identifier">assert_nothing_raised</span> <span class="ruby-keyword kw">do</span>
+        <span class="ruby-constant">BSON</span><span class="ruby-operator">::</span><span class="ruby-constant">ObjectId</span>.<span class="ruby-identifier">from_string</span>(<span class="ruby-identifier">id</span>.<span class="ruby-identifier">to_s</span>)
+      <span class="ruby-keyword kw">end</span>
+    <span class="ruby-keyword kw">end</span>
+  <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

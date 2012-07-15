@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>generate_field_data (BlankGenerator)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File blank_generation.rb, line 130</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">generate_field_data</span>(<span class="ruby-identifier">num_records</span>, <span class="ruby-identifier">dist_type</span>, <span class="ruby-identifier">field_def</span>)
+    <span class="ruby-keyword kw">case</span> <span class="ruby-identifier">dist_type</span>
+      <span class="ruby-keyword kw">when</span> <span class="ruby-value str">&quot;normal&quot;</span>
+        <span class="ruby-identifier">generate_by_normal</span>(<span class="ruby-identifier">num_records</span>, <span class="ruby-identifier">field_def</span>[<span class="ruby-value str">'example_value'</span>], <span class="ruby-identifier">field_def</span>[<span class="ruby-value str">'mean'</span>], <span class="ruby-identifier">field_def</span>[<span class="ruby-value str">'std_dev'</span>], <span class="ruby-identifier">field_def</span>[<span class="ruby-value str">'nil_ratio'</span>], <span class="ruby-identifier">field_def</span>[<span class="ruby-value str">'nil_value'</span>])
+      <span class="ruby-keyword kw">when</span> <span class="ruby-value str">&quot;random&quot;</span>
+        <span class="ruby-identifier">generate_by_random</span>(<span class="ruby-identifier">num_records</span>, <span class="ruby-identifier">field_def</span>[<span class="ruby-value str">'example_value'</span>], <span class="ruby-identifier">field_def</span>[<span class="ruby-value str">'min'</span>], <span class="ruby-identifier">field_def</span>[<span class="ruby-value str">'max'</span>], <span class="ruby-identifier">field_def</span>[<span class="ruby-value str">'allow_repeat_values'</span>], <span class="ruby-identifier">field_def</span>[<span class="ruby-value str">'nil_ratio'</span>], <span class="ruby-identifier">field_def</span>[<span class="ruby-value str">'nil_value'</span>])
+      <span class="ruby-keyword kw">when</span> <span class="ruby-value str">&quot;histogram&quot;</span>
+        <span class="ruby-identifier">generate_by_histogram</span>(<span class="ruby-identifier">num_records</span>, <span class="ruby-identifier">field_def</span>[<span class="ruby-value str">'histogram'</span>], <span class="ruby-identifier">field_def</span>[<span class="ruby-value str">'example_value'</span>])
+      <span class="ruby-keyword kw">when</span> <span class="ruby-value str">&quot;value_set&quot;</span>
+        <span class="ruby-identifier">generate_by_value_set</span>(<span class="ruby-identifier">num_records</span>, <span class="ruby-identifier">field_def</span>[<span class="ruby-value str">'value_set'</span>], <span class="ruby-identifier">field_def</span>[<span class="ruby-value str">'nil_ratio'</span>], <span class="ruby-identifier">field_def</span>[<span class="ruby-value str">'nil_value'</span>])
+      <span class="ruby-keyword kw">when</span> <span class="ruby-value str">&quot;id_int&quot;</span>
+        <span class="ruby-identifier">generate_by_id_int</span>(<span class="ruby-identifier">num_records</span>, <span class="ruby-identifier">field_def</span>[<span class="ruby-value str">'id_int_base'</span>], <span class="ruby-identifier">field_def</span>[<span class="ruby-value str">'id_int_step'</span>])
+      <span class="ruby-keyword kw">when</span> <span class="ruby-value str">&quot;id_uuid&quot;</span>
+        <span class="ruby-identifier">generate_by_id_uuid</span>(<span class="ruby-identifier">num_records</span>)
+      <span class="ruby-keyword kw">when</span> <span class="ruby-value str">&quot;id_mongo_objid&quot;</span>
+        <span class="ruby-identifier">generate_by_id_mongo_objid</span>(<span class="ruby-identifier">num_recordse</span>)
+      <span class="ruby-keyword kw">else</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-constant">BlankGenerationException</span>, <span class="ruby-node">&quot;Illegal distribution type #{dist_type} in field definition. See documentation for legal field groupings.&quot;</span> 
+    <span class="ruby-keyword kw">end</span>
+  <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

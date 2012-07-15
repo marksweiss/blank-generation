@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>test__generate_normal (BlankGenerator_Test)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File test/test_blank_generation.rb, line 122</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">test__generate_normal</span>
+    <span class="ruby-identifier">require</span> <span class="ruby-value str">'json'</span>
+    
+    <span class="ruby-identifier">num_records</span> = <span class="ruby-value">2</span>
+    <span class="ruby-identifier">field_name</span> = <span class="ruby-value str">&quot;test_normal_field&quot;</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">'{&quot;dist_type&quot; : &quot;normal&quot;, &quot;example_value&quot; : 1.0, &quot;mean&quot; : 1.0, &quot;std_dev&quot; : 0.0}'</span>
+    <span class="ruby-identifier">field_def</span>[<span class="ruby-value str">&quot;name&quot;</span>] = <span class="ruby-identifier">field_name</span> 
+    <span class="ruby-identifier">field_defs</span> = [<span class="ruby-identifier">field_def</span>]
+    <span class="ruby-identifier">out_format</span> = <span class="ruby-identifier">:json</span>
+    <span class="ruby-identifier">dist</span> = <span class="ruby-ivar">@g</span>.<span class="ruby-identifier">generate</span>(<span class="ruby-identifier">num_records</span>, <span class="ruby-identifier">field_defs</span>, <span class="ruby-identifier">out_format</span>)    
+    <span class="ruby-identifier">dist</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span>(<span class="ruby-identifier">dist</span>)
+    <span class="ruby-identifier">assert</span>(<span class="ruby-identifier">dist</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">num_records</span>, <span class="ruby-node">&quot;test__generate failed. dist returned == #{dist.length} records, expected #{num_records}&quot;</span>)
+    <span class="ruby-comment cmt"># Test value for each record, each &quot;row&quot;, these are the elements in the dist array in sequence    </span>
+    <span class="ruby-identifier">record_value</span> = <span class="ruby-identifier">dist</span>[<span class="ruby-value">0</span>][<span class="ruby-identifier">field_name</span>]
+    <span class="ruby-identifier">assert</span>(<span class="ruby-identifier">record_value</span> <span class="ruby-operator">==</span> <span class="ruby-value">1.0</span>, <span class="ruby-node">&quot;test__generate failed. dist returned == #{record_value}&quot;</span>)  
+    <span class="ruby-identifier">assert</span>(<span class="ruby-identifier">record_value</span>.<span class="ruby-identifier">class</span> <span class="ruby-operator">==</span> <span class="ruby-constant">Float</span>, <span class="ruby-node">&quot;test__generate failed. dist returned data of type == #{record_value.class}&quot;</span>)  
+    <span class="ruby-identifier">record_value</span> = <span class="ruby-identifier">dist</span>[<span class="ruby-value">1</span>][<span class="ruby-identifier">field_name</span>]
+    <span class="ruby-identifier">assert</span>(<span class="ruby-identifier">record_value</span> <span class="ruby-operator">==</span> <span class="ruby-value">1.0</span>, <span class="ruby-node">&quot;test__generate failed. dist returned == #{record_value}&quot;</span>)    
+    
+    <span class="ruby-identifier">num_records</span> = <span class="ruby-value">2</span>
+    <span class="ruby-identifier">field_name</span> = <span class="ruby-value str">&quot;test_normal_field&quot;</span>
+    <span class="ruby-identifier">field_def</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span> <span class="ruby-value str">'{&quot;dist_type&quot; : &quot;normal&quot;, &quot;example_value&quot; : 1, &quot;mean&quot; : 1.0, &quot;std_dev&quot; : 0.0}'</span>
+    <span class="ruby-identifier">field_def</span>[<span class="ruby-value str">&quot;name&quot;</span>] = <span class="ruby-identifier">field_name</span> 
+    <span class="ruby-identifier">field_defs</span> = [<span class="ruby-identifier">field_def</span>]
+    <span class="ruby-identifier">out_format</span> = <span class="ruby-identifier">:json</span>
+    <span class="ruby-identifier">dist</span> = <span class="ruby-ivar">@g</span>.<span class="ruby-identifier">generate</span>(<span class="ruby-identifier">num_records</span>, <span class="ruby-identifier">field_defs</span>, <span class="ruby-identifier">out_format</span>)    
+    <span class="ruby-identifier">dist</span> = <span class="ruby-constant">JSON</span>.<span class="ruby-identifier">parse</span>(<span class="ruby-identifier">dist</span>)
+    <span class="ruby-identifier">assert</span>(<span class="ruby-identifier">dist</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">num_records</span>, <span class="ruby-node">&quot;test__generate failed. dist returned == #{dist.length} records, expected #{num_records}&quot;</span>)
+    <span class="ruby-comment cmt"># Test value for each record, each &quot;row&quot;, these are the elements in the dist array in sequence    </span>
+    <span class="ruby-identifier">record_value</span> = <span class="ruby-identifier">dist</span>[<span class="ruby-value">0</span>][<span class="ruby-identifier">field_name</span>]
+    <span class="ruby-identifier">assert</span>(<span class="ruby-identifier">record_value</span> <span class="ruby-operator">==</span> <span class="ruby-value">1</span>, <span class="ruby-node">&quot;test__generate failed. dist returned == #{record_value}&quot;</span>)    
+    <span class="ruby-identifier">assert</span>(<span class="ruby-identifier">record_value</span>.<span class="ruby-identifier">class</span> <span class="ruby-operator">==</span> <span class="ruby-constant">Fixnum</span>, <span class="ruby-node">&quot;test__generate failed. dist returned data of type == #{record_value.class}&quot;</span>)  
+    <span class="ruby-identifier">record_value</span> = <span class="ruby-identifier">dist</span>[<span class="ruby-value">1</span>][<span class="ruby-identifier">field_name</span>]
+    <span class="ruby-identifier">assert</span>(<span class="ruby-identifier">record_value</span> <span class="ruby-operator">==</span> <span class="ruby-value">1</span>, <span class="ruby-node">&quot;test__generate failed. dist returned == #{record_value}&quot;</span>)        
+  <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

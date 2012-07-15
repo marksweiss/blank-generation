@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>generate_by_value_set (BlankGenerator)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File blank_generation.rb, line 250</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">generate_by_value_set</span>(<span class="ruby-identifier">num_records</span>, <span class="ruby-identifier">value_set</span>, <span class="ruby-identifier">nil_ratio</span>=<span class="ruby-keyword kw">nil</span>, <span class="ruby-identifier">nil_value</span>=<span class="ruby-keyword kw">nil</span>)
+    <span class="ruby-identifier">value_set</span> = <span class="ruby-identifier">value_set</span>[<span class="ruby-value str">&quot;value_set&quot;</span>]
+    <span class="ruby-comment cmt"># Don't allow non-unique use of value _set values to generate distribution, because what if data supplied had fewer</span>
+    <span class="ruby-comment cmt">#  unique values than the number of elements required by num_records.  Also nils are allowed.  Could figure out</span>
+    <span class="ruby-comment cmt">#  all these edge cases and only throw an exception of length of value_set not adequate, but instead just require non_unigue</span>
+    <span class="ruby-comment cmt">#  use of values in the value set, so we can always generate enough values for any distribution with no edge cases</span>
+    <span class="ruby-identifier">allow_repeat_values</span> = <span class="ruby-keyword kw">false</span>
+    <span class="ruby-comment cmt"># Generate distribution of random indexes into the value_set using R call</span>
+    <span class="ruby-identifier">dist_indices</span> = <span class="ruby-ivar">@r</span>.<span class="ruby-identifier">sample</span>(<span class="ruby-value">0</span>.<span class="ruby-identifier">upto</span>(<span class="ruby-identifier">value_set</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">-</span> <span class="ruby-value">1</span>).<span class="ruby-identifier">collect</span>, <span class="ruby-identifier">value_set</span>.<span class="ruby-identifier">length</span>, <span class="ruby-identifier">allow_repeat_values</span>)  <span class="ruby-comment cmt"># flag allows values in range of values (arg 0) to be used more than once</span>
+    <span class="ruby-identifier">dist</span> = []
+    <span class="ruby-comment cmt"># Iterate over the indexes to select values from value_set at that index and output</span>
+    <span class="ruby-identifier">dist_indices</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">i</span><span class="ruby-operator">|</span>
+      <span class="ruby-identifier">dist</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">value_set</span>[<span class="ruby-identifier">i</span>]
+    <span class="ruby-keyword kw">end</span>
+    <span class="ruby-identifier">dist</span> = <span class="ruby-identifier">set_nil_values</span>(<span class="ruby-identifier">dist</span>, <span class="ruby-identifier">nil_ratio</span>, <span class="ruby-identifier">nil_value</span>)
+    
+    <span class="ruby-identifier">dist</span>
+  <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

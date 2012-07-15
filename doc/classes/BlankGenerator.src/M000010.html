@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>set_nil_values (BlankGenerator)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File blank_generation.rb, line 269</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">set_nil_values</span>(<span class="ruby-identifier">dist</span>, <span class="ruby-identifier">nil_ratio</span>, <span class="ruby-identifier">nil_value</span>)
+    <span class="ruby-comment cmt"># If nil_ratio was passed, nil out values at random distribution of indices within all indices in the distribution</span>
+    <span class="ruby-comment cmt"># So random sampling over normal distribution maintains a normal distribituion asymptotically</span>
+    <span class="ruby-keyword kw">if</span> <span class="ruby-keyword kw">not</span> <span class="ruby-identifier">nil_ratio</span>.<span class="ruby-identifier">nil?</span>
+      <span class="ruby-identifier">num_nil_indices</span> = (<span class="ruby-identifier">nil_ratio</span> <span class="ruby-operator">*</span> <span class="ruby-identifier">num_records</span>).<span class="ruby-identifier">ceil</span>
+      <span class="ruby-comment cmt"># Random distribution of index position in the range (0..num_records-1)</span>
+      <span class="ruby-identifier">allow_repeat_values</span> = <span class="ruby-keyword kw">true</span>  
+      <span class="ruby-identifier">nil_indices</span> = <span class="ruby-ivar">@r</span>.<span class="ruby-identifier">sample</span>(<span class="ruby-value">0</span>.<span class="ruby-identifier">upto</span>(<span class="ruby-identifier">num_records</span> <span class="ruby-operator">-</span> <span class="ruby-value">1</span>).<span class="ruby-identifier">collect</span>, <span class="ruby-identifier">num_nil_indices</span>, <span class="ruby-identifier">allow_repeat_values</span>)
+      <span class="ruby-identifier">nil_indices</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">i</span><span class="ruby-operator">|</span>
+        <span class="ruby-identifier">dist</span>[<span class="ruby-identifier">i</span>] = <span class="ruby-identifier">nil_value</span>
+      <span class="ruby-keyword kw">end</span>
+    <span class="ruby-keyword kw">end</span>
+  
+    <span class="ruby-identifier">dist</span>
+  <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>
