@@ -180,7 +180,9 @@ class NormalFieldGenerator < FieldGenerator
   end
   
   def generate(num_records)    
-    dist = @r.rnorm(num_records, @mean, @std_dev)  # rsruby R call 
+    dist = @r.rnorm(num_records, @mean, @std_dev)  # rsruby R call
+    # Handle RSRuby case where single value returnes is a scalar, multiple values an array 
+    dist = [dist] if dist.class != Array
     if @data_type == Fixnum
       dist.map! {|x| x.floor}
     end
@@ -423,9 +425,10 @@ end
 
 # TODO Need child helper object for Histogram and ValueSet or method to create on here statically, 
 class HistogramFieldGenerator < FieldGenerator
-  HIST_TYPE_RANDOM = 1
-  HIST_TYPE_VALUE_SET = 2
-  HIST_TYPE_DICTIONARY = 3
+  HIST_TYPE_NORMAL = 1
+  HIST_TYPE_RANDOM = 2
+  HIST_TYPE_VALUE_SET = 3
+  HIST_TYPE_DICTIONARY = 4
    
   class Bucket
     attr_accessor :min_share_boundary, :max_share_boundary, :generator
@@ -458,20 +461,19 @@ class HistogramFieldGenerator < FieldGenerator
       raise BlankGenerationException, "HistogramGenerator::add_bucket_generator(): total_share + share cannot exceed 1.0. total_share #{total_share}, share #{share}"        
     end
     cls = generator.class
-    if cls != RandomFieldGenerator && cls != ValueSetFieldGenerator && cls != DictionaryFieldGenerator
+    if cls != NormalFieldGenerator && cls != RandomFieldGenerator && cls != ValueSetFieldGenerator && cls != DictionaryFieldGenerator
       raise BlankGenerationException, "HistogramGenerator::add_bucket_generator(): Validation failed for arguments: generator #{generator.inspect}. Arg not a valid generator type, either RandomFieldGenerator, DictionaryFieldGenerator or ValueSetGenerator"
     end
     # Enforce that all generators are the same type as each other and as the declared type of the Histogram
     # So the class can generate arbitrary distributions but of homogenous data
-    if ((cls == RandomFieldGenerator && @hist_type != HIST_TYPE_RANDOM) || 
+    if ((cls == NormalFieldGenerator && @hist_type != HIST_TYPE_NORMAL) ||
+      (cls == RandomFieldGenerator && @hist_type != HIST_TYPE_RANDOM) || 
       (cls == ValueSetFieldGenerator && @hist_type != HIST_TYPE_VALUE_SET) ||
       (cls == DictionaryFieldGenerator && @hist_type != HIST_TYPE_DICTIONARY))
-      raise BlankGenerationException, "HistogramGenerator::add_bucket_generator(): Validation failed for values: generator #{generator.inspect} and hist_type #{hist_type}. Generator type doesn't match Histrogram type"
+      raise BlankGenerationException, "HistogramGenerator::add_bucket_generator(): Validation failed for values: generator #{generator.inspect} and hist_type #{@hist_type}. Generator type doesn't match Histrogram type"
     end
-    # Enforce the case that all RandomFieldGenerators added (if the Histogram is type HIST_TYPE_RANDOM)
-    #  must be of homogenous data, either all Fixnum or all Float. If this isn't the first generator and this one is Random, then its data type must
-    #  match previous generator's data type.
-    if cls == RandomFieldGenerator && @buckets.length > 0 && @buckets.last.generator.data_type != generator.data_type
+    # Enforce the case that all Normal and RandomFieldGenerators must be of homogenous data, either all Fixnum or all Float. 
+    if (cls == NormalFieldGenerator || cls == RandomFieldGenerator) && @buckets.length > 0 && @buckets.last.generator.data_type != generator.data_type
       raise BlankGenerationException, "HistogramGenerator::add_bucket_generator(): Validation failed for values: generator #{generator.inspect} and buckets #{@buckets}. Generator data type doesn't match existing Histogram data type."    
     end
 
@@ -493,7 +495,8 @@ class HistogramFieldGenerator < FieldGenerator
           break
         end
       end
-    end    
+    end
+        
     dist
   end
   
@@ -512,7 +515,7 @@ class HistogramFieldGenerator < FieldGenerator
   end  
   
   def validate
-    return false if @hist_type != HIST_TYPE_RANDOM && @hist_type != HIST_TYPE_VALUE_SET && @hist_type != HIST_TYPE_DICTIONARY
+    return false if @hist_type != HIST_TYPE_NORMAL  && @hist_type != HIST_TYPE_RANDOM && @hist_type != HIST_TYPE_VALUE_SET && @hist_type != HIST_TYPE_DICTIONARY
     true
   end
 end
