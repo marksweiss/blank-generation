@@ -24,6 +24,8 @@ The following _Field Generators_ are provided:
     * Generate a normal distribution of Integer, Float or Date data.
 * _RandomFieldGenerator_
     * Generate a random distribution of Integer, Float or Date data.
+* _StringFieldGenerator_
+    * Generate a random string with control over the min string length, max string length, minimum number of string tokens, max number of string tokens, token delimiter and alphabet.
 * _ValueSetFieldGenerator_
     * Generate a random distribution drawn from a fixed set of values provided. Values can be any type. Useful for fields using a fixed set of values, such as zip codes, state codes, etc.
 * _DictionaryFieldGenerator_

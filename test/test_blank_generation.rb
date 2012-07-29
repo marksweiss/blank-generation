@@ -58,7 +58,7 @@ class BlankGenerator_Test < Test::Unit::TestCase
     dist = g.generate(num_records)
     assert(dist == "[{\"col\":\"1997-07-16T14:20:30-04:00\"},{\"col\":\"1997-07-16T14:20:30-04:00\"}]", "test__generate_by_normal failed. dist returned == #{dist.inspect}")  
   end
-
+  
   def test__generate_by_normal_int__nil_handling
     num_records = 2
     mean = 20.0
@@ -91,7 +91,7 @@ class BlankGenerator_Test < Test::Unit::TestCase
     # Still has the custom nil value because CSV includes nil columns
     assert(dist == "-1\n-1\n", "test__generate_by_normal failed. dist returned == #{dist.inspect}")
   end
-
+  
   def test__generate_by_random_int
     num_records = 2
     min = 1
@@ -159,7 +159,7 @@ class BlankGenerator_Test < Test::Unit::TestCase
     
     assert(dist_json[0]["col"] >= 0.0 && dist_json[0]["col"] <= 4.0 && dist_json[1]["col"] >= 0.0 && dist_json[1]["col"] <= 4.0, "test__generate_by_random failed. dist returned == #{dist.inspect}")
   end
-
+  
   def test__generate_by_random_date
     num_records = 2
     min = "1997-07-16T19:20:30.45+01:00"
@@ -189,6 +189,53 @@ class BlankGenerator_Test < Test::Unit::TestCase
            date_s_to_i(dist_json[1]["col"]) <= date_s_to_i(field_gen.max), "test__generate_by_random failed. dist returned == #{dist.inspect}")
   end
     
+  def test__generate_by_string
+    num_records = 2
+    # Defaults
+    # min_string_length = 1
+    # max_string_length = 20
+    # min_num_tokens = 1
+    # max_num_tokens = 1
+    # alphabet = ('a'..'z').to_a + ('A'..'Z').to_a    
+    # nil_ratio = nil
+    # nil_value = nil
+    field_gen = StringFieldGenerator.new("col")
+    g = BlankGenerator.new
+    g.add_field_generator field_gen
+    dist = g.generate num_records
+    dist_json = JSON.parse dist 
+    assert((dist_json[0]["col"].length > 0 && dist_json[0]["col"].length <= 20 && dist_json[0]["col"].class == String), "test__generate_by_string failed. dist returned == #{dist.inspect}")
+  
+    field_gen.min_string_length = 5
+    field_gen.max_string_length = 5
+    g = BlankGenerator.new
+    g.add_field_generator field_gen
+    dist = g.generate num_records
+    dist_json = JSON.parse dist 
+    assert((dist_json[0]["col"].length == 5 && dist_json[0]["col"].class == String), "test__generate_by_string failed. dist returned == #{dist.inspect}")
+
+    field_gen.min_num_tokens = 1
+    field_gen.max_num_tokens = 5
+    # Must >=  2*max_num_tokens - 1 or exception raised
+    field_gen.max_string_length = 15
+    g = BlankGenerator.new    
+    g.add_field_generator field_gen
+    dist = g.generate num_records
+    dist_json = JSON.parse dist
+    tkns = dist_json[0]["col"].split(' ')
+    assert((tkns.length >= field_gen.min_num_tokens && tkns.length <= field_gen.max_num_tokens && dist_json[0]["col"].class == String), "test__generate_by_string failed. dist returned == #{dist.inspect}")
+    
+    field_gen.delimiter = ';'
+    field_gen.min_num_tokens = 1
+    field_gen.max_num_tokens = 5
+    g = BlankGenerator.new    
+    g.add_field_generator field_gen
+    dist = g.generate num_records
+    dist_json = JSON.parse dist
+    tkns = dist_json[0]["col"].split(';')
+    assert((tkns.length >= field_gen.min_num_tokens && tkns.length <= field_gen.max_num_tokens && dist_json[0]["col"].class == String), "test__generate_by_string failed. dist returned == #{dist.inspect}")
+  end
+    
   def test__generate_by_dictionary
     num_records = 2
     path = "./test_dictionary.txt"
@@ -206,7 +253,7 @@ class BlankGenerator_Test < Test::Unit::TestCase
     dist = g.generate num_records    
     assert(dist == "hello world\n" || dist == "goodbye chicken\n", "test__generate_by_dictionary failed. dist returned == #{dist.inspect}")
   end
-
+  
   def test__generate_by_value_set
     num_records = 2
     values = [30, 30]
@@ -232,7 +279,7 @@ class BlankGenerator_Test < Test::Unit::TestCase
     dist = g.generate num_records    
     assert(dist == "hello world\n" || dist == "30\n", "test__generate_by_value_set failed. dist returned == #{dist.inspect}")
   end
-
+  
   def test__generate_by_histogram
     # Define the Histogram generator
     num_records = 2
@@ -268,7 +315,7 @@ class BlankGenerator_Test < Test::Unit::TestCase
     dist_json = JSON.parse dist    
     assert( ((dist_json[0]["col"] == "hello world" || dist_json[0]["col"] == "goodbye chicken") && 
              (dist_json[1]["col"] == "hello world" || dist_json[1]["col"] == "goodbye chicken")), "test__generate_by_histogram failed. dist returned == #{dist.inspect}")
-
+  
     # Now test with ValueSetGenerator
     hist_field_gen = HistogramFieldGenerator.new("col", HistogramFieldGenerator::HIST_TYPE_VALUE_SET)
     value_set_field_gen = ValueSetFieldGenerator.new("col", ["hello world", "goodbye chicken"])
@@ -281,7 +328,7 @@ class BlankGenerator_Test < Test::Unit::TestCase
     assert( ((dist_json[0]["col"] == "hello world" || dist_json[0]["col"] == "goodbye chicken") && 
              (dist_json[1]["col"] == "hello world" || dist_json[1]["col"] == "goodbye chicken")), "test__generate_by_histogram failed. dist returned == #{dist.inspect}")
   end
-
+  
   def test__generate_by_id_int
     num_records = 3    
     # Test using default values for id_int_base and id_int_step, 0 and 1 respectively. So default for 3 records will be [0, 1, 2]
@@ -308,7 +355,7 @@ class BlankGenerator_Test < Test::Unit::TestCase
     dist_json = JSON.parse dist    
     assert((dist_json[0]["col"] == 10 && dist_json[1]["col"] == 12 && dist_json[2]["col"] == 14), "test__generate_by_id_int failed. dist returned == #{dist.inspect}")
   end
-
+  
   def test__generate_by_id_uuid
     num_records = 2
     field_gen = IdUuidFieldGenerator.new("col")
@@ -323,7 +370,7 @@ class BlankGenerator_Test < Test::Unit::TestCase
       end
     end
   end
-
+  
   def test__generate_by_normal_int_nil_values
     num_records = 2
     mean = 20
@@ -337,7 +384,7 @@ class BlankGenerator_Test < Test::Unit::TestCase
     dist_json = JSON.parse dist
     # Both values are deisgnated nil_value because nil_ratio is 1.0
     assert((dist_json[0]["col"] == -1 && dist_json[1]["col"] == -1), "test__generate_by_normal_int_nil_values failed. dist returned == #{dist.inspect}")
-
+  
     nil_ratio = 0.5
     nil_value = -1
     field_gen = NormalFieldGenerator.new("col", FieldGenerator::INT, mean, std_dev, nil_ratio, nil_value)
@@ -433,7 +480,7 @@ class BlankGenerator_Test < Test::Unit::TestCase
     assert(((dist_json[0]["col"] == 1.0 || dist_json[0]["col"] == 2 || dist_json[0]["col"] == 3) && 
             (dist_json[1]["col"] == 1.0 || dist_json[1]["col"] == 2 || dist_json[1]["col"] == 3)), "test__generate_by_histogram failed. dist returned == #{dist.inspect}")
   end  
-
+  
   def test__generate_full_record
     num_records = 1
     id_gen = IdFieldGenerator.new("CustId")
@@ -477,7 +524,7 @@ class BlankGenerator_Test < Test::Unit::TestCase
     dist_json = JSON.parse dist    
     assert((dist_json[0]["col"] == 10 && dist_json[1]["col"] == 12 && dist_json[2]["col"] == 14), "test__generate_by_id_int failed. dist returned == #{dist.inspect}")
   end
-
+  
   def test__generate_by_id_uuid_options_hash
     num_records = 2
     g = BlankGenerator.new

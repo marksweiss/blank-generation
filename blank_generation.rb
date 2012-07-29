@@ -67,7 +67,7 @@ class BlankGenerator
         formatter_config[field_gen.name] = field_gen
         # Appends array which is all the data for this field, in order
         # So each array in array out is the pivot of all data for that column for all rows
-        field_data[field_gen.name] = field_gen.generate num_records
+        field_data[field_gen.name] = field_gen.generate num_records        
         # If Date field, convert Date fields from Unix time int back to Date
         if field_gen.respond_to?(:date_flag) && field_gen.date_flag
           field_data[field_gen.name].map! do |v|
@@ -78,7 +78,7 @@ class BlankGenerator
 
       # TODO Change this to not have to loop twice, make formatter format each line and append to output inline
       #  in above loop
-      out = @formatter.format(field_data, num_records, formatter_config)      
+      out = @formatter.format(field_data, num_records, formatter_config)         
       out
     rescue Exception => e
       puts e
@@ -313,6 +313,121 @@ class RandomFieldGenerator < FieldGenerator
     return false if !@date_flag && min_cls != max_cls
     true  
   end  
+end
+
+# TODO Add support for Base64 Encoded String, gzip String, BZ2 String
+class StringFieldGenerator < FieldGenerator
+  attr_accessor :min_string_length, :max_string_length, :min_num_tokens, :max_num_tokens, :alphabet, :delimiter, :nil_ratio, :nil_value
+  
+  def initialize(*args) # :min_string_length=1, :max_string_length=20, ::min_num_tokens=1, :max_num_tokens=1, :alphabet=ENGLISH, :nil_ratio=nil, :nil_value=nil
+    # Handle args as argument list or options hash
+    name, min_string_length, max_string_length, min_num_tokens, max_num_tokens, alphabet, delimiter, nil_ratio, nil_value = load_init_args args
+    
+    super(name, STRING)
+    @min_string_length = min_string_length
+    @max_string_length = max_string_length
+    @min_num_tokens = min_num_tokens
+    @max_num_tokens = max_num_tokens
+    @alphabet = alphabet
+    @delimiter = delimiter
+    @nil_ratio = nil_ratio
+    @nil_value = nil_value
+    
+    if not validate
+      raise BlankGenerationException, "StringFieldGenerator: Validation failed for arguments: name #{name}, min_string_length #{min_string_length}, max_string_length #{max_string_length}, max_num_tokens #{max_num_tokens}, max_num_tokens #{max_num_tokens}, alphabet #{alphabet}, nil_value #{nil_value}"
+    end    
+  end
+  
+  def generate(num_records)
+    if @max_string_length < (2 * @max_num_tokens) - 1    
+      raise BlankGenerationException, "StringFieldGenerator: #generate() failed because max_string_length #{@max_string_length} is less than '(2 * @max_num_tokens)-1' == #{(2 * @max_num_tokens) - 1}"
+    end
+    
+    require 'set'
+    dist = []
+    numtkns = (@min_num_tokens + rand(@max_num_tokens - @min_num_tokens)).floor
+    strlen = (@min_string_length + rand(@max_string_length - @min_string_length)).floor
+    strlen -= (numtkns - 1) # insert delimiter to create tokens, need n-1 delimiter chars, leave space in string
+    alen = @alphabet.length
+    
+    num_records.times do |i|
+      rec = []
+      strlen.times do |i|
+        rec << @alphabet[rand(alen)]
+      end
+
+      # Create unique set of indexes to put delimiters at
+      tkn_idxs = Set.new    
+      while tkn_idxs.length < numtkns - 1  # num - 1 because a string with no delims is 1 token
+        # Don't put delimiters in first or last position in string
+        idx = 1 + rand(strlen - 2)
+        # Don't include two consecutive delimiters, would create zero-length tokens and consecutive delimiters
+        tkn_idxs << idx unless tkn_idxs.include? idx - 1 or tkn_idxs.include? idx + 1
+      end
+      # Insert delimiters to create tokens
+      tkn_idxs = tkn_idxs.to_a
+      tkn_idxs.each do |i|
+        rec.insert(i, ' ')
+      end
+
+      dist << rec.join
+    end
+    
+    dist
+  end
+  
+  private
+  
+  def load_init_args(args)    
+    min_string_length = 1
+    max_string_length = 20
+    min_num_tokens = 1
+    max_num_tokens = 1
+    alphabet = ('a'..'z').to_a + ('A'..'Z').to_a
+    delimiter = ' '
+    nil_ratio = nil
+    nil_value = nil
+    if args.length == 1 && args[0].class == Hash
+      opts = args[0]
+      return opts[:min_string_length], opts[:max_string_length], opts[:min_num_tokens], opts[:max_num_tokens], opts[:alphabet], opts[:delimiter], opts[:nil_ratio], opts[:nil_value]
+    # Only 'name' arg provided. Return all opts. All that follow include one or more additional args
+    elsif args.length == 1
+      return args[0], min_string_length, max_string_length, min_num_tokens, max_num_tokens, alphabet, delimiter, nil_ratio, nil_value
+    elsif args.length == 2
+      return args[0], args[1], max_string_length, min_num_tokens, max_num_tokens, alphabet, delimiter, nil_ratio, nil_value
+    elsif args.length == 3
+      return args[0], args[1], args[2], min_num_tokens, max_num_tokens, alphabet, delimiter, nil_ratio, nil_value
+    elsif args.length == 4
+      return args[0], args[1], args[2], args[3], max_num_tokens, alphabet, delimiter, nil_ratio, nil_value
+    elsif args.length == 5
+      return args[0], args[1], args[2], args[3], args[4], alphabet, delimiter, nil_ratio, nil_value
+    elsif args.length == 6
+      return args[0], args[1], args[2], args[3], args[4], args[5], delimiter, nil_ratio, nil_value
+    elsif args.length == 7
+      return args[0], args[1], args[2], args[3], args[4], args[5], args[6], nil_ratio, nil_value
+    elsif args.length == 8
+      return args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], nil_value
+    elsif args.length == 9
+      return args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8]
+    else
+      raise BlankGenerationException, "StringFieldGenerator: illegal arguments passed to #initialize() #{args.inspect}"
+    end
+  end
+  
+  def validate
+    return false if not super
+    return false if ! @nil_ratio.nil? && @nil_ratio.class != Float
+    return false if @min_string_length.class != Fixnum || 
+                    @max_string_length.class != Fixnum ||
+                    @min_num_tokens.class != Fixnum ||
+                    @max_num_tokens.class != Fixnum     
+    return false if @min_string_length < 0 || @min_string_length > @max_string_length || @max_string_length < 0
+    return false if @min_num_tokens < 0 || @min_num_tokens > @max_num_tokens || @max_num_tokens < 0
+    # min_string_length must be long enough for min_num_tokens, 2*n -1 because need to delimit that many tokens at least 1 char each    
+    return false if @max_string_length < (2 * @max_num_tokens) - 1
+    return false if @alphabet.length < 1 
+    true
+  end
 end
 
 class DictionaryFieldGenerator < FieldGenerator
@@ -635,7 +750,7 @@ class JsonFormatter < BlankFormatter
     num_records.times do |j|
       record = {}
       field_data.each do |field, data|
-        cur_data = data[j]
+        cur_data = data[j]        
         if cur_data == NIL_FLD_MARKER
           if not @exclude_nil_fields
             cur_data = nil
