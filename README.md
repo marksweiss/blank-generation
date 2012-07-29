@@ -53,8 +53,9 @@ To get a feel for using _BlankGeneration_, let's use it to generate data for a s
     * "State"
     * "CreatedAt"
     * "MaxPurchasePrice"
+    * "Notes"
 
-In a realistic set of test data, each of these fields would contain a different distribution of values.  The "CustId" would be a sequence of integers.  The "Name" might be a random distribution from a file of real customer names.  The "State" field might be a random distribution from a fixed set of state-code values.  The "CreatedAt" might be a random distribution within a fixed start and end date.  The "MaxPurchasePrice" might be a normal distribution around a known mean and standard deviation. 
+In a realistic set of test data, each of these fields would contain a different distribution of values.  The "CustId" would be a sequence of integers.  The "Name" might be a random distribution from a file of real customer names.  The "State" field might be a random distribution from a fixed set of state-code values.  The "CreatedAt" might be a random distribution within a fixed start and end date.  The "MaxPurchasePrice" might be a normal distribution around a known mean and standard deviation. "Notes" could just be some random string data within a certain length.
 
 Here is the code to create this test data and return it as JSON, using Rails-style syntax for creating generators:
 
@@ -64,6 +65,7 @@ name_gen = DictionaryFieldGenerator.new :name => "Name", :path => "./namesfile.t
 state_gen = ValueSetFieldGenerator.new :name => "State", :values => ["NY", "NJ", "PA", "DE"]
 created_at_gen = RandomFieldGenerator.new :name => "CreatedAt", :data_type => FieldGenerator::DATE, :min => "1997-07-16T19:20:30.45+01:00", :max => "1997-07-16T19:20:30.45+01:00"
 max_purchase_gen = NormalFieldGenerator.new :name => "MaxPurchasePrice", :data_type => FieldGenerator::FLOAT, :mean => 20.32, :std_dev => 8.63
+notes_gen = StringFieldGenerator.new :name => "Notes", :min_string_length => 0, max_string_length => 255, min_num_tokens => 0, max_num_tokens =>30
 g = BlankGenerator.new
 g.add_field_generators(id_gen, name_gen, state_gen, created_at_gen, max_purchase_gen)
 num_records = 1000
@@ -100,4 +102,4 @@ dist = JSON.parse(g.generate(num_records))
 
 Creating a general-purpose library for creating test data is challenging because the breadth of possible use cases is arbitrary -- everybody has different data. There are many, many edge cases and special cases. Just having reasonable date support is a tall order.  
 
-So, please send pull requests with improvements. Please open issues. But before you do, push the features provided as far as they can go. General tools like the _DictionaryFieldGenerator_, _ValueSetFieldGenerator_ and _HistogramFieldGenerator_ can be used to generate a wide range of data.
+So, please send pull requests with improvements. Please open issues. But before you do, push the features provided as far as they can go. General tools like the _StringFieldGenerator_, _DictionaryFieldGenerator_, _ValueSetFieldGenerator_ and _HistogramFieldGenerator_ can be used to generate a wide range of data.
